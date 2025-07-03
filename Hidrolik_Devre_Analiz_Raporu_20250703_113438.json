@@ -1,0 +1,404 @@
+{
+  "analiz_tarihi": "2025-07-03 11:34:38",
+  "dosya_bilgileri": {
+    "pdf_path": "Doğu Pres - Hidrolik Şemalar.pdf",
+    "docx_path": "Hidrolik Devre Şeması_Kriterleri_Puanlama.docx"
+  },
+  "hidrolik_gecerliligi": {
+    "gecerli": true,
+    "mesaj": "Hidrolik devre güvenilirlik: %60.0 (3/5 kriter)"
+  },
+  "cikarilan_degerler": {
+    "proje_no": "5231",
+    "sistem_tipi": "press feeding system",
+    "tarih": "09.05.2019",
+    "coil_tech": "Coil TECH",
+    "hidrolik_unite": "HİDROLİK ÜNİTE",
+    "hidrolik_acici": "HİDROLİK AÇICI",
+    "dogrultma": "DOĞRULTMA",
+    "tank_hacmi": "12",
+    "motor_gucu": "3",
+    "devir": "1500",
+    "debi": "12",
+    "basinc_g38": "G3/8",
+    "basinc_g12": "G1/2",
+    "basinc_g14": "G1/4",
+    "tambur": "TAMBUR",
+    "rhso_silindir": "RHSÖ 63X45X200",
+    "pilotlama": "PILOTLAMA",
+    "data_sheet": "DATA SHEET",
+    "manifold_plan": "MANIFOLD PLAN",
+    "teknik_resim_uyari": "Teknik Resim Üzerinden Ölçü Almayın"
+  },
+  "kategori_analizleri": {
+    "Enerji Kaynağı": {
+      "basinc_yagi": {
+        "criteria_name": "basinc_yagi",
+        "found": true,
+        "content": "['oil', 'HYDRAULIC', 'oil', 'HYDRAULIC', 'oil', 'HYDRAULIC']",
+        "score": 8,
+        "max_score": 8,
+        "details": {
+          "pattern_used": "(?:yağ|hydraulic|oil|basınç|pressure)",
+          "matches_found": 6
+        }
+      },
+      "basinc_aralik": {
+        "criteria_name": "basinc_aralik",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 8,
+        "details": {
+          "pattern_used": "(?:80|100|120|180|200|300|350).*?(?:bar|Bar|BAR)",
+          "matches_found": 0
+        }
+      },
+      "sivil_guc": {
+        "criteria_name": "sivil_guc",
+        "found": true,
+        "content": "['HYDRAULIC', 'HİDROLİK', 'HYDRAULIC', 'HİDROLİK', 'HYDRAULIC']",
+        "score": 5,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?:sıvı|liquid|hydraulic|hidrolik)",
+          "matches_found": 5
+        }
+      },
+      "yuksek_basinc": {
+        "criteria_name": "yuksek_basinc",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 4,
+        "details": {
+          "pattern_used": "(?:80|100|120|180|200|300|350).*?(?:bar|Bar|BAR)",
+          "matches_found": 0
+        }
+      }
+    },
+    "Hidrolik Semboller ve Bileşenler": {
+      "pompa_sembol": {
+        "criteria_name": "pompa_sembol",
+        "found": true,
+        "content": "P1",
+        "score": 5,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?:pompa|pump|40P1|40M1|P1|M1)",
+          "matches_found": 1
+        }
+      },
+      "motor_sembol": {
+        "criteria_name": "motor_sembol",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?:motor|Motor|40M1|M1)",
+          "matches_found": 0
+        }
+      },
+      "silindir_sembol": {
+        "criteria_name": "silindir_sembol",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?:silindir|cylinder|piston|çift etkili|tek etkili)",
+          "matches_found": 0
+        }
+      },
+      "basinc_valfi": {
+        "criteria_name": "basinc_valfi",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?:basınç|pressure|valve|valf|40R1|R1)",
+          "matches_found": 0
+        }
+      },
+      "yon_kontrol_valfi": {
+        "criteria_name": "yon_kontrol_valfi",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?:4/2|4/3|3/2|DCV|yön kontrol|valve)",
+          "matches_found": 0
+        }
+      },
+      "tank_sembol": {
+        "criteria_name": "tank_sembol",
+        "found": true,
+        "content": "V= 40",
+        "score": 3,
+        "max_score": 3,
+        "details": {
+          "pattern_used": "(?:tank|Tank|400U1|U1|V=\\s*40)",
+          "matches_found": 1
+        }
+      },
+      "filtre_sembol": {
+        "criteria_name": "filtre_sembol",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?:filtre|filter|F1)",
+          "matches_found": 0
+        }
+      }
+    },
+    "Akış Yönü ve Bağlantı Hattı": {
+      "cizgi_borular": {
+        "criteria_name": "cizgi_borular",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?:boru|pipe|hat|line|çizgi)",
+          "matches_found": 0
+        }
+      },
+      "yon_oklari": {
+        "criteria_name": "yon_oklari",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?:yön|direction|ok|arrow|akış)",
+          "matches_found": 0
+        }
+      },
+      "pompa_cikis": {
+        "criteria_name": "pompa_cikis",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?:pompa.*çıkış|pump.*output|basınç hatt)",
+          "matches_found": 0
+        }
+      },
+      "tank_donus": {
+        "criteria_name": "tank_donus",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 3,
+        "details": {
+          "pattern_used": "(?:tank.*dönüş|return|tahliye)",
+          "matches_found": 0
+        }
+      },
+      "birlesim_nokta": {
+        "criteria_name": "birlesim_nokta",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?:birleşim|junction|bağlantı|connection)",
+          "matches_found": 0
+        }
+      }
+    },
+    "Sistem Bilgileri ve Etiketler": {
+      "bar_basinc": {
+        "criteria_name": "bar_basinc",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 4,
+        "details": {
+          "pattern_used": "(?:80|100|120|180|200|300|350).*?(?:bar|Bar|BAR)",
+          "matches_found": 0
+        }
+      },
+      "debi_bilgi": {
+        "criteria_name": "debi_bilgi",
+        "found": true,
+        "content": "12 lt/dak",
+        "score": 3,
+        "max_score": 3,
+        "details": {
+          "pattern_used": "(?:cc/rev|cc/dakika|12.*?lt/dak|lt/min)",
+          "matches_found": 1
+        }
+      },
+      "guc_bilgi": {
+        "criteria_name": "guc_bilgi",
+        "found": true,
+        "content": "3 kW",
+        "score": 3,
+        "max_score": 3,
+        "details": {
+          "pattern_used": "(?:3\\s*kW|kW|HP|güç|power|1500.*?rpm)",
+          "matches_found": 1
+        }
+      },
+      "tank_hacmi": {
+        "criteria_name": "tank_hacmi",
+        "found": true,
+        "content": "V= 40",
+        "score": 2,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?:V=\\s*40|40.*?LT|tank.*?hacmi)",
+          "matches_found": 1
+        }
+      },
+      "yag_tipi": {
+        "criteria_name": "yag_tipi",
+        "found": true,
+        "content": "['oil', 'HYDRAULIC', 'oil', 'HYDRAULIC', 'oil', 'HYDRAULIC']",
+        "score": 2,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?:yağ|oil|hydraulic|fluid)",
+          "matches_found": 6
+        }
+      },
+      "motor_gucu": {
+        "criteria_name": "motor_gucu",
+        "found": true,
+        "content": "3 kW",
+        "score": 1,
+        "max_score": 1,
+        "details": {
+          "pattern_used": "(?:3\\s*kW|kW|1500.*?rpm|motor.*?güç)",
+          "matches_found": 1
+        }
+      }
+    },
+    "Başlık ve Belgelendirme": {
+      "hydraulic_scheme": {
+        "criteria_name": "hydraulic_scheme",
+        "found": true,
+        "content": "['HYDRAULIC', 'HİDROLİK', 'HYDRAULIC', 'HİDROLİK', 'HYDRAULIC']",
+        "score": 3,
+        "max_score": 3,
+        "details": {
+          "pattern_used": "(?:HYDRAULIC|hydraulic|HİDROLİK|hidrolik)",
+          "matches_found": 5
+        }
+      },
+      "data_sheet": {
+        "criteria_name": "data_sheet",
+        "found": true,
+        "content": "['DATA SHEET', 'DATA SHEET', 'DATA SHEET']",
+        "score": 2,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?:DATA\\s*SHEET|data.*?sheet|veri.*?sayfası)",
+          "matches_found": 3
+        }
+      },
+      "manifold_plan": {
+        "criteria_name": "manifold_plan",
+        "found": true,
+        "content": "['MANIFOLD PLAN', 'MANIFOLD PLAN', 'MANIFOLD PLAN']",
+        "score": 2,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?:MANIFOLD\\s*PLAN|manifold|kolektör)",
+          "matches_found": 3
+        }
+      },
+      "cizim_standardi": {
+        "criteria_name": "cizim_standardi",
+        "found": false,
+        "content": "Bulunamadı",
+        "score": 0,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?:ISO\\s*1219|standart|standard)",
+          "matches_found": 0
+        }
+      },
+      "teknik_resim": {
+        "criteria_name": "teknik_resim",
+        "found": true,
+        "content": "['Teknik Resim', 'Teknik Resim', 'Teknik Resim']",
+        "score": 1,
+        "max_score": 1,
+        "details": {
+          "pattern_used": "(?:Teknik\\s*Resim|technical.*?drawing)",
+          "matches_found": 3
+        }
+      }
+    }
+  },
+  "puanlama": {
+    "category_scores": {
+      "Enerji Kaynağı": {
+        "earned": 13,
+        "possible": 25,
+        "normalized": 13.0,
+        "max_weight": 25,
+        "percentage": 52.0
+      },
+      "Hidrolik Semboller ve Bileşenler": {
+        "earned": 8,
+        "possible": 30,
+        "normalized": 8.0,
+        "max_weight": 30,
+        "percentage": 26.67
+      },
+      "Akış Yönü ve Bağlantı Hattı": {
+        "earned": 0,
+        "possible": 20,
+        "normalized": 0.0,
+        "max_weight": 20,
+        "percentage": 0.0
+      },
+      "Sistem Bilgileri ve Etiketler": {
+        "earned": 11,
+        "possible": 15,
+        "normalized": 11.0,
+        "max_weight": 15,
+        "percentage": 73.33
+      },
+      "Başlık ve Belgelendirme": {
+        "earned": 8,
+        "possible": 10,
+        "normalized": 8.0,
+        "max_weight": 10,
+        "percentage": 80.0
+      }
+    },
+    "total_score": 40.0,
+    "total_max_score": 100,
+    "overall_percentage": 40.0
+  },
+  "oneriler": [
+    "⚠️ Enerji Kaynağı bölümü geliştirilmeli (%52.0)",
+    "❌ Hidrolik Semboller ve Bileşenler bölümü yetersiz (%26.7)",
+    "  Eksik kriterler: motor_sembol, silindir_sembol, basinc_valfi, yon_kontrol_valfi, filtre_sembol",
+    "❌ Akış Yönü ve Bağlantı Hattı bölümü yetersiz (%0.0)",
+    "  Eksik kriterler: cizgi_borular, yon_oklari, pompa_cikis, tank_donus, birlesim_nokta",
+    "⚠️ Sistem Bilgileri ve Etiketler bölümü geliştirilmeli (%73.3)",
+    "✅ Başlık ve Belgelendirme bölümü yeterli (%80.0)",
+    "\n🚨 GENEL ÖNERİLER:",
+    "- Şema ISO 1219 standardına uyumlu hale getirilmelidir",
+    "- Hidrolik semboller eksiksiz olmalıdır",
+    "- Sistem bilgileri detaylandırılmalıdır",
+    "- Basınç ve debi değerleri belirtilmelidir"
+  ],
+  "ozet": {
+    "toplam_puan": 40.0,
+    "yuzde": 40.0,
+    "durum": "YETERSİZ",
+    "hidrolik_durumu": "GEÇERLİ"
+  }
+}
