@@ -30,68 +30,72 @@ class CircuitAnalysisResult:
     criteria_name: str
     found: bool
     content: str
-    score: float  # Changed to float for more precise scoring
-    max_score: float  # Changed to float for more precise scoring
+    score: float
+    max_score: float
     details: Dict[str, Any]
     visual_evidence: List[ComponentDetection]
 
-class AdvancedCircuitAnalyzer:
-    """Advanced circuit diagram analyzer"""
+class PneumaticCircuitAnalyzer:
+    """Advanced pneumatic circuit diagram analyzer"""
     
     def __init__(self):
-        # Hydraulic circuit criteria weights
-        self.hydraulic_criteria_weights = {
+        # Pneumatic circuit criteria weights
+        self.pneumatic_criteria_weights = {
             "Enerji Kaynağı": 25,
-            "Hidrolik Semboller ve Bileşenler": 30,
+            "Pnömatik Semboller ve Bileşenler": 30,
             "Akış Yönü ve Bağlantı Hattı": 20,
             "Sistem Bilgileri ve Etiketler": 15,
             "Başlık ve Belgelendirme": 10
         }
         
-        # Hydraulic circuit component patterns
-        self.hydraulic_criteria_details = {
+        # Pneumatic circuit component patterns
+        self.pneumatic_criteria_details = {
             "Enerji Kaynağı": {
-                "basinc_yagi": {"pattern": r"(?i)(?:hidrolik|yağ|oil|basınç|pressure|fluid)", "weight": 8},
-                "basinc_aralik": {"pattern": r"(?i)(?:\d{2,3}(?:\.\d+)?.*?(?:bar|Bar|BAR|MPa|psi))", "weight": 8},
-                "sivil_guc": {"pattern": r"(?i)(?:sıvı|liquid|hydraulic|hidrolik|fluid|oil|yağ)", "weight": 5},
-                "yuksek_basinc": {"pattern": r"(?i)(?:\d{2,3}(?:\.\d+)?.*?(?:bar|Bar|BAR|MPa|psi))", "weight": 4}
+                "hava_kaynagi": {"pattern": r"(?i)(?:◉|hava|air|basınçlı\s*hava|compressed\s*air|supply|P(?:\s*=\s*\d+(?:\.\d+)?(?:\s*bar|Bar|BAR|MPa|psi))?)", "weight": 8},
+                "basinc_aralik": {"pattern": r"(?i)(?:\d{1,2}(?:\.\d+)?.*?(?:bar|Bar|BAR|MPa|psi)|P\s*=\s*\d+(?:\.\d+)?(?:\s*bar|Bar|BAR|MPa|psi))", "weight": 8},
+                "hava_hazırlama": {"pattern": r"(?i)(?:⬭|filtre|filter|regülatör|regulator|yağlayıcı|lubricator|FRL|⬭---|FR[L]?|F/R|F/R/L)", "weight": 5},
+                "basinc_gosterge": {"pattern": r"(?i)(?:manometre|pressure\s*gauge|gösterge|indicator|P[I]?|PI|PT)", "weight": 4}
             },
-            "Hidrolik Semboller ve Bileşenler": {
-                "pompa_sembol": {"pattern": r"(?i)(?:pompa|pump|[0-9]+[PM][0-9]+|P\d+|M\d+)", "weight": 7},
-                "motor_sembol": {"pattern": r"(?i)(?:motor|Motor|[0-9]+M[0-9]+|M\d+|drive)", "weight": 7},
-                "silindir_sembol": {"pattern": r"(?i)(?:silindir|cylinder|piston|çift\s*etkili|tek\s*etkili|actuator)", "weight": 6},
-                "basinc_valfi": {"pattern": r"(?i)(?:basınç|pressure|valve|valf|[0-9]+R[0-9]+|R\d+|relief)", "weight": 5},
-                "yon_kontrol_valfi": {"pattern": r"(?i)(?:4/[23]|3/2|DCV|yön\s*kontrol|valve|valf|directional)", "weight": 5}
+            "Pnömatik Semboller ve Bileşenler": {
+                "silindir_sembol": {"pattern": r"(?i)(?:⇳|⇵|silindir|cylinder|piston|çift\s*etkili|tek\s*etkili|actuator|double\s*acting|single\s*acting)", "weight": 7},
+                "valf_sembol": {"pattern": r"(?i)(?:▭⟶▭|▭⟶▭⟶▭|▭⟶▭⟶▭⟶▭|▭⟶▭⟶▭⟶▭⟶▭|valf|valve|[2-5][/][2-5]|[0-9]+[V][0-9]+|V\d+|solenoid)", "weight": 7},
+                "yon_kontrol": {"pattern": r"(?i)(?:5/[23]|4/[23]|3/2|2/2|yön\s*kontrol|directional|control|way\s*valve)", "weight": 6},
+                "basinc_kontrol": {"pattern": r"(?i)(?:basınç|pressure|regulator|relief|emniyet|PR|PRV|safety)", "weight": 5},
+                "hiz_kontrol": {"pattern": r"(?i)(?:⇨⇦|hız|speed|flow\s*control|akış\s*kontrol|FC|FCV)", "weight": 5}
             },
             "Akış Yönü ve Bağlantı Hattı": {
-                "cizgi_borular": {"pattern": r"(?i)(?:boru|pipe|hat|line|çizgi|hose|tube)", "weight": 6},
-                "yon_oklari": {"pattern": r"(?i)(?:yön|direction|ok|arrow|akış|flow)", "weight": 6},
-                "pompa_cikis": {"pattern": r"(?i)(?:pompa.*?(?:çıkış|çıkışı)|pump.*?output|basınç\s*hatt|pressure\s*line|discharge)", "weight": 4},
-                "tank_donus": {"pattern": r"(?i)(?:tank.*?(?:dönüş|dönüşü)|return|tahliye|drain|suction)", "weight": 4}
+                "hava_hatti": {"pattern": r"(?i)(?:▬|hava|air|hat|line|boru|pipe|hose|supply\s*line)", "weight": 6},
+                "yon_oklari": {"pattern": r"(?i)(?:→|←|↑|↓|⇒|⇐|⇑|⇓|yön|direction|ok|arrow|akış|flow)", "weight": 6},
+                "giris_cikis": {"pattern": r"(?i)(?:A|B|P|R|S|giriş|çıkış|input|output|port|bağlantı|connection)", "weight": 4},
+                "egzoz_hatti": {"pattern": r"(?i)(?:⊥|egzoz|exhaust|tahliye|drain|vent|R|S|EA|EB)", "weight": 4}
             },
             "Sistem Bilgileri ve Etiketler": {
-                "bar_basinc": {"pattern": r"(?i)(?:\d{2,3}(?:\.\d+)?.*?(?:bar|Bar|BAR|MPa|psi))", "weight": 4},
-                "debi_bilgi": {"pattern": r"(?i)(?:\d+(?:\.\d+)?.*?(?:cc/rev|cc/dk|lt/dak|lt/min|l/min|gpm))", "weight": 4},
-                "guc_bilgi": {"pattern": r"(?i)(?:\d+(?:\.\d+)?.*?(?:kW|HP|hp|güç|power)|(?:\d{3,4}.*?rpm))", "weight": 4},
-                "tank_hacmi": {"pattern": r"(?i)(?:V\s*=\s*\d+|(?:\d+).*?(?:LT|lt|L|l)|tank.*?(?:hacmi|hacim|volume))", "weight": 3}
+                "calisma_basinci": {"pattern": r"(?i)(?:P\s*=\s*\d{1,2}(?:\.\d+)?.*?(?:bar|Bar|BAR|MPa|psi)|\d{1,2}(?:\.\d+)?.*?(?:bar|Bar|BAR|MPa|psi))", "weight": 4},
+                "hava_tuketimi": {"pattern": r"(?i)(?:Q\s*=\s*\d+(?:\.\d+)?.*?(?:l/min|lt/dak|cfm|m³/h)|\d+(?:\.\d+)?.*?(?:l/min|lt/dak|cfm|m³/h))", "weight": 4},
+                "strok_bilgi": {"pattern": r"(?i)(?:s\s*=\s*\d+(?:\.\d+)?.*?(?:mm|cm|m)|strok|stroke|\d+(?:\.\d+)?.*?(?:mm|cm|m))", "weight": 4},
+                "valf_tipi": {"pattern": r"(?i)(?:normalde.*?(?:açık|kapalı)|NC|NO|normally|N[CO]|spring\s*return|yay\s*geri\s*dönüşlü)", "weight": 3}
             },
             "Başlık ve Belgelendirme": {
-                "hydraulic_scheme": {"pattern": r"(?i)(?:HYDRAULIC|hydraulic|HİDROLİK|hidrolik|hydro)", "weight": 3},
-                "data_sheet": {"pattern": r"(?i)(?:DATA\s*SHEET|data.*?sheet|veri.*?sayfası|specification)", "weight": 3},
-                "manifold_plan": {"pattern": r"(?i)(?:MANIFOLD\s*PLAN|manifold|kolektör|collector|block)", "weight": 2},
-                "cizim_standardi": {"pattern": r"(?i)(?:ISO\s*1219|standart|standard|DIN|EN)", "weight": 2}
+                "pneumatic_scheme": {"pattern": r"(?i)(?:PNEUMATIC|pneumatic|PNÖMATİK|pnömatik|pneumatik|ŞEMA|şema|scheme|diagram)", "weight": 3},
+                "data_sheet": {"pattern": r"(?i)(?:DATA\s*SHEET|data.*?sheet|veri.*?sayfası|specification|teknik\s*bilgi)", "weight": 3},
+                "manifold_plan": {"pattern": r"(?i)(?:MANIFOLD\s*PLAN|manifold|kolektör|collector|block|dağıtıcı)", "weight": 2},
+                "cizim_standardi": {"pattern": r"(?i)(?:ISO\s*1219|DIN\s*ISO\s*1219|standart|standard|DIN|EN)", "weight": 2}
             }
         }
         
         # Component detection templates
         self.component_templates = {
-            "hydraulic": {
-                "pump": ["P1", "P2", "P3", "PUMP", "POMPA"],
-                "motor": ["M1", "M2", "M3", "MOTOR"],
-                "valve": ["V1", "V2", "V3", "VALVE", "VALF"],
-                "cylinder": ["C1", "C2", "C3", "CYL", "SİLİNDİR"],
-                "tank": ["T1", "T2", "TANK", "TAMBUR"],
-                "filter": ["F1", "F2", "FİLTRE", "FILTER"]
+            "pneumatic": {
+                "cylinder": ["⇳", "⇵", "C1", "C2", "C3", "CYL", "SİLİNDİR", "CYLINDER", "PISTON"],
+                "valve": ["▭⟶▭", "▭⟶▭⟶▭", "▭⟶▭⟶▭⟶▭", "▭⟶▭⟶▭⟶▭⟶▭", "V1", "V2", "V3", "VALVE", "VALF", "2/2", "3/2", "4/2", "5/2"],
+                "frl": ["⬭", "⬭---", "F1", "F2", "FRL", "FİLTRE", "FILTER", "REGULATOR", "REGÜLATÖR"],
+                "sensor": ["◉", "S1", "S2", "SENSOR", "SENSÖR", "PI", "PT", "PS"],
+                "regulator": ["⬭---", "R1", "R2", "REG", "REGÜLATÖR", "PR", "PRV"],
+                "silencer": ["⊥", "M1", "M2", "SUSTURUCU", "MUFFLER", "EXHAUST"],
+                "flow_control": ["⇨⇦", "FC1", "FC2", "FLOW", "AKIŞ", "FCV"],
+                "timer": ["⧗", "T1", "T2", "TIMER", "ZAMANLAYICI"],
+                "pressure_switch": ["PS1", "PS2", "PRESSURE", "BASINÇ", "SWITCH"],
+                "direction_arrows": ["→", "←", "↑", "↓", "⇒", "⇐", "⇑", "⇓"]
             }
         }
 
@@ -118,39 +122,13 @@ class AdvancedCircuitAnalyzer:
             logger.error(f"PDF text extraction error: {e}")
             return ""
 
-    def extract_images_from_pdf(self, pdf_path: str) -> List[Any]:
-        """Extract images from PDF"""
-        logger.info("Image extraction is temporarily disabled")
-        return []
-
-    def perform_ocr_on_images(self, images: List[Any]) -> List[str]:
-        """Perform OCR on extracted images"""
-        logger.info("OCR functionality is temporarily disabled")
-        return []
-
-    def detect_components_in_images(self, images: List[Any], circuit_type: str) -> List[ComponentDetection]:
-        """Detect components in images"""
-        logger.info("Component detection is temporarily disabled")
-        return []
-
-    def determine_circuit_type(self, text: str, images: List[Any]) -> Tuple[str, float]:
-        """Always return hydraulic since we're only analyzing hydraulic circuits"""
-        return "hydraulic", 1.0
-
-    def analyze_criteria(self, text: str, images: List[Any], category: str, 
-                        circuit_type: str) -> Dict[str, CircuitAnalysisResult]:
-        """Analyze criteria with visual evidence from images"""
+    def analyze_criteria(self, text: str, category: str) -> Dict[str, CircuitAnalysisResult]:
+        """Analyze criteria for pneumatic circuit diagrams"""
         results = {}
-        criteria = self.hydraulic_criteria_details.get(category, {})
+        criteria = self.pneumatic_criteria_details.get(category, {})
         
         # Combine text and OCR results
         combined_text = text
-        if images:
-            ocr_results = self.perform_ocr_on_images(images)
-            combined_text += " " + " ".join(ocr_results)
-        
-        # Detect components in images
-        detected_components = self.detect_components_in_images(images, circuit_type)
         
         for criterion_name, criterion_data in criteria.items():
             pattern = criterion_data["pattern"]
@@ -159,28 +137,13 @@ class AdvancedCircuitAnalyzer:
             # Text-based matching
             text_matches = re.findall(pattern, combined_text, re.IGNORECASE | re.MULTILINE)
             
-            # Component-based matching
-            relevant_components = [comp for comp in detected_components 
-                                 if self._is_relevant_component(comp, criterion_name)]
-            
             # Scoring logic with partial credit
-            if text_matches or relevant_components:
-                content_parts = []
-                if text_matches:
-                    content_parts.append(f"Text: {str(text_matches[:3])}")
-                if relevant_components:
-                    comp_labels = [comp.label for comp in relevant_components[:5]]
-                    content_parts.append(f"Components: {comp_labels}")
-                
-                content = " | ".join(content_parts)
+            if text_matches:
+                content = f"Text: {str(text_matches[:3])}"
                 found = True
                 
                 # Calculate score with partial credit
-                text_score = min(weight * 0.8, len(text_matches) * (weight * 0.2))
-                component_score = min(weight * 0.2, len(relevant_components) * (weight * 0.1))
-                score = text_score + component_score
-                
-                # Cap score at maximum weight
+                score = min(weight * 0.8, len(text_matches) * (weight * 0.2))
                 score = min(score, weight)
             else:
                 content = "Not found"
@@ -196,37 +159,21 @@ class AdvancedCircuitAnalyzer:
                 details={
                     "pattern_used": pattern,
                     "text_matches": len(text_matches) if text_matches else 0,
-                    "visual_matches": len(relevant_components)
+                    "visual_matches": 0
                 },
-                visual_evidence=relevant_components
+                visual_evidence=[]
             )
         
         return results
 
-    def _is_relevant_component(self, component: ComponentDetection, criterion_name: str) -> bool:
-        """Check if detected component is relevant to the criterion"""
-        relevance_map = {
-            "pompa_sembol": ["pump"],
-            "motor_sembol": ["motor"],
-            "silindir_sembol": ["cylinder"],
-            "basinc_valfi": ["valve"],
-            "yon_kontrol_valfi": ["valve"],
-            "tank_sembol": ["tank"],
-            "filtre_sembol": ["filter"]
-        }
-        
-        relevant_types = relevance_map.get(criterion_name, [])
-        return component.component_type in relevant_types
-
-    def calculate_scores(self, analysis_results: Dict[str, Dict[str, CircuitAnalysisResult]], 
-                        circuit_type: str) -> Dict[str, Any]:
+    def calculate_scores(self, analysis_results: Dict[str, Dict[str, CircuitAnalysisResult]]) -> Dict[str, Any]:
         """Calculate final scores with partial credit and curve"""
         category_scores = {}
         total_score = 0
         total_max_score = 100
 
         for category, results in analysis_results.items():
-            category_max = self.hydraulic_criteria_weights[category]
+            category_max = self.pneumatic_criteria_weights[category]
             category_earned = sum(result.score for result in results.values())
             category_possible = sum(result.max_score for result in results.values())
 
@@ -258,18 +205,17 @@ class AdvancedCircuitAnalyzer:
             "overall_percentage": round((final_score / total_max_score * 100), 2)
         }
 
-    def extract_specific_values(self, text: str, circuit_type: str) -> Dict[str, Any]:
-        """Extract specific values from hydraulic circuit text"""
+    def extract_specific_values(self, text: str) -> Dict[str, Any]:
+        """Extract specific values from pneumatic circuit text"""
         values = {
             "proje_no": "Not found",
             "sistem_tipi": "Not found",
             "tarih": "Not found",
-            "hidrolik_unite": "Not found",
-            "tank_hacmi": "Not found",
-            "motor_gucu": "Not found",
-            "devir": "Not found",
-            "debi": "Not found",
-            "tambur": "Not found"
+            "calisma_basinci": "Not found",
+            "hava_tuketimi": "Not found",
+            "strok": "Not found",
+            "valf_tipi": "Not found",
+            "kontrol_tipi": "Not found"
         }
         
         # Project number pattern
@@ -287,49 +233,44 @@ class AdvancedCircuitAnalyzer:
         if date_match:
             values["tarih"] = date_match.group(1)
         
-        # Hydraulic unit pattern
-        unit_match = re.search(r"(?:HİDROLİK\s*ÜNİTE|HYDRAULIC\s*UNIT)", text)
-        if unit_match:
-            values["hidrolik_unite"] = unit_match.group()
+        # Working pressure pattern
+        pressure_match = re.search(r"(?:(\d{1,2}(?:\.\d+)?)\s*(?:bar|Bar|BAR))", text)
+        if pressure_match:
+            values["calisma_basinci"] = pressure_match.group(1)
         
-        # Tank volume pattern
-        tank_match = re.search(r"(?:V=\s*(\d+)|(\d+)\s*LT)", text)
-        if tank_match:
-            values["tank_hacmi"] = next(m for m in tank_match.groups() if m)
+        # Air consumption pattern
+        consumption_match = re.search(r"(?:(\d+(?:\.\d+)?)\s*(?:l/min|lt/dak|cfm))", text)
+        if consumption_match:
+            values["hava_tuketimi"] = consumption_match.group(1)
         
-        # Motor power pattern
-        power_match = re.search(r"(?:(\d+)\s*kW|(\d+)\s*HP)", text)
-        if power_match:
-            values["motor_gucu"] = next(m for m in power_match.groups() if m)
+        # Stroke pattern
+        stroke_match = re.search(r"(?:(\d+(?:\.\d+)?)\s*(?:mm|cm))", text)
+        if stroke_match:
+            values["strok"] = stroke_match.group(1)
         
-        # RPM pattern
-        rpm_match = re.search(r"(?:(\d+)\s*rpm)", text)
-        if rpm_match:
-            values["devir"] = rpm_match.group(1)
+        # Valve type pattern
+        valve_match = re.search(r"(?:normalde\s*(açık|kapalı)|N[CO])", text)
+        if valve_match:
+            values["valf_tipi"] = valve_match.group(1) or valve_match.group()
         
-        # Flow rate pattern
-        flow_match = re.search(r"(?:(\d+).*?lt/dak|(\d+).*?cc/rev)", text)
-        if flow_match:
-            values["debi"] = next(m for m in flow_match.groups() if m)
-        
-        # Drum pattern
-        drum_match = re.search(r"(?:TAMBUR|DRUM)", text)
-        if drum_match:
-            values["tambur"] = drum_match.group()
+        # Control type pattern
+        control_match = re.search(r"(?:(elektrik|pneumatic|manual)\s*kontrol)", text)
+        if control_match:
+            values["kontrol_tipi"] = control_match.group(1)
         
         return values
 
-    def generate_recommendations(self, analysis_results: Dict, scores: Dict, circuit_type: str) -> List[str]:
+    def generate_recommendations(self, analysis_results: Dict, scores: Dict) -> List[str]:
         """Generate recommendations based on analysis results"""
         recommendations = []
         
-        # Check hydraulic validity
+        # Check pneumatic validity
         valid_criteria_count = sum(1 for category, results in analysis_results.items() 
                                  for result in results.values() if result.found)
         total_criteria_count = sum(len(results) for results in analysis_results.values())
-        hydraulic_validity = valid_criteria_count / total_criteria_count
+        pneumatic_validity = valid_criteria_count / total_criteria_count
         
-        recommendations.append(f"⚠️ Hidrolik Geçerlilik: Hidrolik devre güvenilirlik: %{hydraulic_validity*100:.1f} ({valid_criteria_count}/{total_criteria_count} kriter)")
+        recommendations.append(f"⚠️ Pnömatik Geçerlilik: Pnömatik devre güvenilirlik: %{pneumatic_validity*100:.1f} ({valid_criteria_count}/{total_criteria_count} kriter)")
 
         for category, results in analysis_results.items():
             category_score = scores["category_scores"][category]["percentage"]
@@ -348,45 +289,37 @@ class AdvancedCircuitAnalyzer:
             recommendations.append("\n🚨 GENEL ÖNERİLER:")
             recommendations.extend([
                 "- Şema ISO 1219 standardına uyumlu hale getirilmelidir",
-                "- Hidrolik semboller eksiksiz olmalıdır",
+                "- Pnömatik semboller eksiksiz olmalıdır",
                 "- Sistem bilgileri detaylandırılmalıdır",
-                "- Basınç ve debi değerleri belirtilmelidir"
+                "- Basınç ve hava tüketimi değerleri belirtilmelidir"
             ])
 
         return recommendations
 
     def analyze_circuit_diagram(self, pdf_path: str) -> Dict[str, Any]:
-        """Main analysis function for circuit diagrams"""
-        logger.info("Starting circuit diagram analysis...")
+        """Main analysis function for pneumatic circuit diagrams"""
+        logger.info("Starting pneumatic circuit diagram analysis...")
 
-        # Extract text and images
+        # Extract text
         text = self.extract_text_from_pdf(pdf_path)
         if not text:
             return {"error": "Could not read PDF"}
 
-        # Extract images
-        images = self.extract_images_from_pdf(pdf_path)
-        
-        # Determine circuit type
-        circuit_type, type_confidence = self.determine_circuit_type(text, images)
-        if circuit_type == "unknown":
-            return {"error": "Could not determine circuit type"}
-
-        # Analyze based on circuit type
+        # Analyze based on criteria
         analysis_results = {}
-        criteria_weights = self.hydraulic_criteria_weights
+        criteria_weights = self.pneumatic_criteria_weights
 
         for category in criteria_weights.keys():
-            analysis_results[category] = self.analyze_criteria(text, images, category, circuit_type)
+            analysis_results[category] = self.analyze_criteria(text, category)
 
         # Calculate scores
-        scores = self.calculate_scores(analysis_results, circuit_type)
+        scores = self.calculate_scores(analysis_results)
         
         # Extract specific values
-        extracted_values = self.extract_specific_values(text, circuit_type)
+        extracted_values = self.extract_specific_values(text)
         
         # Generate recommendations
-        recommendations = self.generate_recommendations(analysis_results, scores, circuit_type)
+        recommendations = self.generate_recommendations(analysis_results, scores)
 
         # Prepare report
         report = {
@@ -395,8 +328,8 @@ class AdvancedCircuitAnalyzer:
                 "pdf_path": pdf_path
             },
             "circuit_type": {
-                "type": circuit_type,
-                "confidence": round(type_confidence * 100, 2)
+                "type": "pneumatic",
+                "confidence": 100.0
             },
             "extracted_values": extracted_values,
             "category_analyses": analysis_results,
@@ -406,7 +339,7 @@ class AdvancedCircuitAnalyzer:
                 "total_score": scores["total_score"],
                 "percentage": scores["overall_percentage"],
                 "status": "PASS" if scores["overall_percentage"] >= 70 else "FAIL",
-                "circuit_type": circuit_type.upper()
+                "circuit_type": "PNEUMATIC"
             }
         }
 
@@ -471,15 +404,15 @@ class AdvancedCircuitAnalyzer:
 
 def main():
     """Main function"""
-    analyzer = AdvancedCircuitAnalyzer()
+    analyzer = PneumaticCircuitAnalyzer()
     
-    pdf_path = "Doğu Pres - Hidrolik Şemalar.pdf"
+    pdf_path = "Doğu Pres - Pnömatik Şemalar.pdf"
     
     if not os.path.exists(pdf_path):
         print(f"❌ PDF file not found: {pdf_path}")
         return
     
-    print("🔍 Hidrolik Devre Şeması Analizi Başlatılıyor...")
+    print("🔍 Pnömatik Devre Şeması Analizi Başlatılıyor...")
     print("=" * 60)
     
     report = analyzer.analyze_circuit_diagram(pdf_path)
@@ -495,7 +428,7 @@ def main():
     print(f"📋 Toplam Puan: {report['summary']['total_score']}/100")
     print(f"📈 Yüzde: %{report['summary']['percentage']}")
     print(f"🎯 Durum: {report['summary']['status']}")
-    print(f"⚙️ Hidrolik Durumu: {report['summary']['circuit_type']}")
+    print(f"⚙️ Pnömatik Durumu: {report['summary']['circuit_type']}")
     
     print("\n📋 ÖNEMLİ ÇIKARILAN DEĞERLER")
     print("-" * 40)
@@ -513,8 +446,8 @@ def main():
         print(recommendation)
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    excel_path = f"Hidrolik_Devre_Analiz_Raporu_{timestamp}.xlsx"
-    json_path = f"Hidrolik_Devre_Analiz_Raporu_{timestamp}.json"
+    excel_path = f"Pnömatik_Devre_Analiz_Raporu_{timestamp}.xlsx"
+    json_path = f"Pnömatik_Devre_Analiz_Raporu_{timestamp}.json"
     
     analyzer.save_report_to_excel(report, excel_path)
     analyzer.save_report_to_json(report, json_path)
@@ -530,11 +463,11 @@ def main():
     if percentage >= 70:
         print("✅ SONUÇ: GEÇERLİ")
         print(f"🌟 Toplam Başarı: %{percentage:.1f}")
-        print("📝 Değerlendirme: Hidrolik devre şeması genel olarak yeterli kriterleri sağlamaktadır.")
+        print("📝 Değerlendirme: Pnömatik devre şeması genel olarak yeterli kriterleri sağlamaktadır.")
     else:
         print("❌ SONUÇ: GEÇERSİZ")
         print(f"⚠️ Toplam Başarı: %{percentage:.1f}")
-        print("📝 Değerlendirme: Hidrolik devre şeması minimum gereklilikleri sağlamamaktadır.")
+        print("📝 Değerlendirme: Pnömatik devre şeması minimum gereklilikleri sağlamamaktadır.")
         print("\n⚠️ EKSİK GEREKLİLİKLER:")
         
         # Her kategori için eksik gereklilikleri listele
@@ -549,24 +482,24 @@ def main():
                 for item in missing_items:
                     # Eksik kriter adlarını daha anlaşılır hale getir
                     readable_name = {
-                        "basinc_yagi": "Basınç Yağı",
+                        "hava_kaynagi": "Hava Kaynağı",
                         "basinc_aralik": "Basınç Aralığı",
-                        "sivil_guc": "Sıvı Güç",
-                        "yuksek_basinc": "Yüksek Basınç",
-                        "pompa_sembol": "Pompa Sembolü",
-                        "motor_sembol": "Motor Sembolü",
+                        "hava_hazırlama": "Hava Hazırlama Ünitesi",
+                        "basinc_gosterge": "Basınç Göstergesi",
                         "silindir_sembol": "Silindir Sembolü",
-                        "basinc_valfi": "Basınç Valfi",
-                        "yon_kontrol_valfi": "Yön Kontrol Valfi",
-                        "cizgi_borular": "Çizgi ve Borular",
+                        "valf_sembol": "Valf Sembolü",
+                        "yon_kontrol": "Yön Kontrol Valfi",
+                        "basinc_kontrol": "Basınç Kontrol Valfi",
+                        "hiz_kontrol": "Hız Kontrol Valfi",
+                        "hava_hatti": "Hava Hattı",
                         "yon_oklari": "Yön Okları",
-                        "pompa_cikis": "Pompa Çıkışı",
-                        "tank_donus": "Tank Dönüşü",
-                        "bar_basinc": "Bar Basıncı",
-                        "debi_bilgi": "Debi Bilgisi",
-                        "guc_bilgi": "Güç Bilgisi",
-                        "tank_hacmi": "Tank Hacmi",
-                        "hydraulic_scheme": "Hidrolik Şema",
+                        "giris_cikis": "Giriş/Çıkış Portları",
+                        "egzoz_hatti": "Egzoz Hattı",
+                        "calisma_basinci": "Çalışma Basıncı",
+                        "hava_tuketimi": "Hava Tüketimi",
+                        "strok_bilgi": "Strok Bilgisi",
+                        "valf_tipi": "Valf Tipi",
+                        "pneumatic_scheme": "Pnömatik Şema",
                         "data_sheet": "Veri Sayfası",
                         "manifold_plan": "Manifold Planı",
                         "cizim_standardi": "Çizim Standardı"
@@ -575,7 +508,7 @@ def main():
         
         print("\n📌 YAPILMASI GEREKENLER:")
         print("1. Eksik sembolleri ekleyin")
-        print("2. Basınç ve debi değerlerini belirtin")
+        print("2. Basınç ve hava tüketimi değerlerini belirtin")
         print("3. Akış yönlerini ve bağlantıları gösterin")
         print("4. ISO 1219 standardına uygun hale getirin")
         print("5. Sistem bilgilerini detaylandırın")
