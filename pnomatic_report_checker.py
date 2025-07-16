@@ -406,7 +406,7 @@ def main():
     """Main function"""
     analyzer = PneumaticCircuitAnalyzer()
     
-    pdf_path = "Doğu Pres - Pnömatik Şemalar.pdf"
+    pdf_path = "Doğu Pres - Pnömatik Şemalar.pdf" #Doğu Pres - Pnömatik Şemalar.pdf
     
     if not os.path.exists(pdf_path):
         print(f"❌ PDF file not found: {pdf_path}")

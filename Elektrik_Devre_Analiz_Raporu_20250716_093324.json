@@ -1,0 +1,401 @@
+{
+  "analysis_date": "2025-07-16 09:33:24",
+  "file_info": {
+    "pdf_path": "30292390 (1).pdf"
+  },
+  "circuit_type": {
+    "type": "electric",
+    "confidence": 100.0
+  },
+  "extracted_values": {
+    "proje_no": "30292390",
+    "sistem_tipi": "Not found",
+    "tarih": "Not found",
+    "elektrik_paneli": "Not found",
+    "voltaj": "120",
+    "akim": "14",
+    "guc": "1",
+    "frekans": "Not found",
+    "klemens_blogu": "TERMINAL"
+  },
+  "category_analyses": {
+    "Semboller ve İşaretler": {
+      "direnc_sembol": {
+        "criteria_name": "direnc_sembol",
+        "found": true,
+        "content": "Text: ['4M', '35R', '2M']",
+        "score": 4.800000000000001,
+        "max_score": 6,
+        "details": {
+          "pattern_used": "(?i)(?:direnç|resistor|ohm|Ω|R\\d+|[0-9]+[RKM][0-9]*|zigzag|potansiyometre|pot|trimmer|━+|─+)",
+          "text_matches": 216,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "kondansator_sembol": {
+        "criteria_name": "kondansator_sembol",
+        "found": true,
+        "content": "Text: ['2P', '123P', 'C4']",
+        "score": 4.800000000000001,
+        "max_score": 6,
+        "details": {
+          "pattern_used": "(?i)(?:kondansatör|capacitor|C\\d+|[0-9]+[µnpF]+|paralel\\s*çizgi|elektrolitik|seramik|\\|\\||═+|◇.*?\\|\\||◇.*?═+|⬧.*?\\|\\||⬧.*?═+|⬥.*?\\|\\||⬥.*?═+|<>.*?\\|\\||<>.*?═+|[\\u25C7\\u25C8\\u25C6].*?(?:\\|\\||═+))",
+          "text_matches": 386,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "bobin_sembol": {
+        "criteria_name": "bobin_sembol",
+        "found": true,
+        "content": "Text: ['L1', '4M', 'SOLENOID']",
+        "score": 4.0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?i)(?:bobin|inductor|L\\d+|[0-9]+[mH]+|spiral|solenoid|trafo|transformatör|transformer|⤾|⟲|⥀)",
+          "text_matches": 160,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "diyot_sembol": {
+        "criteria_name": "diyot_sembol",
+        "found": true,
+        "content": "Text: ['LED', 'D8', 'D4']",
+        "score": 4.0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?i)(?:diyot|diode|D\\d+|LED|zener|köprü|bridge|rectifier|doğrultucu|▶|►|⊳)",
+          "text_matches": 129,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "transistor_sembol": {
+        "criteria_name": "transistor_sembol",
+        "found": true,
+        "content": "Text: ['FET', 'FET', 'FET']",
+        "score": 3.2,
+        "max_score": 4,
+        "details": {
+          "pattern_used": "(?i)(?:transistör|transistor|Q\\d+|NPN|PNP|FET|MOSFET|BJT|darlington|⊲|△)",
+          "text_matches": 135,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "toprak_sembol": {
+        "criteria_name": "toprak_sembol",
+        "found": true,
+        "content": "Text: ['PE', 'PE', 'PE']",
+        "score": 1.6,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?i)(?:toprak|ground|earth|GND|⏚|⊥|chassis|şasi|PE|↧|⌁)",
+          "text_matches": 270,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "sigorta_sembol": {
+        "criteria_name": "sigorta_sembol",
+        "found": true,
+        "content": "Text: ['F4', 'FUSE', 'CIRCUIT BREAKER']",
+        "score": 1.6,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?i)(?:sigorta|fuse|F\\d+|MCB|RCD|devre\\s*kesici|circuit\\s*breaker|termik|⚡|═+)",
+          "text_matches": 39,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      }
+    },
+    "Bağlantı Hatları": {
+      "iletken_baglanti": {
+        "criteria_name": "iletken_baglanti",
+        "found": true,
+        "content": "Text: ['WIRE', 'WIRE', 'WIRE']",
+        "score": 6.4,
+        "max_score": 8,
+        "details": {
+          "pattern_used": "(?i)(?:kablo|wire|cable|hat|line|bağlantı|connection|conductor|iletken|NYA|NYM|H0[57]|━+|─+)",
+          "text_matches": 94,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "kesisen_hatlar": {
+        "criteria_name": "kesisen_hatlar",
+        "found": true,
+        "content": "Text: ['node']",
+        "score": 1.2000000000000002,
+        "max_score": 6,
+        "details": {
+          "pattern_used": "(?i)(?:kesişen|crossing|köprü|bridge|junction|node|düğüm|bağlantı\\s*noktası|●|⊏|⊐)",
+          "text_matches": 1,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "baglanti_noktalari": {
+        "criteria_name": "baglanti_noktalari",
+        "found": true,
+        "content": "Text: ['TERMINAL', 'TERMINAL', 'TERMINAL']",
+        "score": 4.800000000000001,
+        "max_score": 6,
+        "details": {
+          "pattern_used": "(?i)(?:bağlantı\\s*noktası|connection\\s*point|terminal|node|klemens|terminal\\s*block|X\\d+|●|○|◯|⊙)",
+          "text_matches": 50,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "elektriksel_yon": {
+        "criteria_name": "elektriksel_yon",
+        "found": true,
+        "content": "Text: ['CURRENT', 'CURRENT', 'CURRENT']",
+        "score": 4.0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?i)(?:yön|direction|ok|arrow|akış|flow|akım|current|→|←|↑|↓|⟶|⇾)",
+          "text_matches": 32,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      }
+    },
+    "Etiketleme ve Numara Sistemleri": {
+      "bilesenlerin_etiketlenmesi": {
+        "criteria_name": "bilesenlerin_etiketlenmesi",
+        "found": true,
+        "content": "Text: ['t8', 'L1', '120V']",
+        "score": 4.800000000000001,
+        "max_score": 6,
+        "details": {
+          "pattern_used": "(?i)(?:[RCL]\\d+|[QDT]\\d+|[MKF]\\d+|[UIC]\\d+|[+-]V(?:cc|dd|ss)|[+-]?\\d+V|S[0-9]|K[0-9])",
+          "text_matches": 1289,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "elektriksel_degerler": {
+        "criteria_name": "elektriksel_degerler",
+        "found": true,
+        "content": "Text: ['=', '=', '1_=TA']",
+        "score": 4.0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?i)(?:\\d+(?:\\.\\d+)?.*?(?:[VvAaMmWwΩ]|volt|amp|watt|ohm|VA|kVA|mA|µA)|[~=]|\\~|\\∿)",
+          "text_matches": 4398,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "klemens_numaralari": {
+        "criteria_name": "klemens_numaralari",
+        "found": true,
+        "content": "Text: ['U', 'W', 'W']",
+        "score": 4.0,
+        "max_score": 5,
+        "details": {
+          "pattern_used": "(?i)(?:klemens|terminal|X\\d+|TB\\d+|[0-9]+\\.[0-9]+|L[123N]|PE|[UVWN]\\d*)",
+          "text_matches": 10110,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "kablo_etiketleri": {
+        "criteria_name": "kablo_etiketleri",
+        "found": true,
+        "content": "Text: ['WIRE', 'WIRE', '14A']",
+        "score": 3.2,
+        "max_score": 4,
+        "details": {
+          "pattern_used": "(?i)(?:kablo|wire|H\\d+|W\\d+|[0-9]+[AWG]|NYA|NYM|H0[57]|[0-9xX]+mm²)",
+          "text_matches": 510,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      }
+    },
+    "Kontrol Panosu / Makine Otomasyon Öğeleri": {
+      "plc_giris_cikis": {
+        "criteria_name": "plc_giris_cikis",
+        "found": true,
+        "content": "Text: ['PLC', 'DI', 'DI']",
+        "score": 3.2,
+        "max_score": 4,
+        "details": {
+          "pattern_used": "(?i)(?:PLC|I[0-9]+|Q[0-9]+|DI|DO|AI|AO|input|output|giriş|çıkış|[0-9]+[VI][0-9]+)",
+          "text_matches": 655,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "kontaktor_rele": {
+        "criteria_name": "kontaktor_rele",
+        "found": true,
+        "content": "Text: ['NC', 'CONTACTOR', 'NC']",
+        "score": 3.2,
+        "max_score": 4,
+        "details": {
+          "pattern_used": "(?i)(?:kontaktör|contactor|röle|relay|K\\d+|KM\\d+|NO|NC|coil|bobin|⤾|⟲)",
+          "text_matches": 495,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "motor_starter": {
+        "criteria_name": "motor_starter",
+        "found": true,
+        "content": "Text: ['DRIVE', 'DRIVE', 'M1']",
+        "score": 2.4000000000000004,
+        "max_score": 3,
+        "details": {
+          "pattern_used": "(?i)(?:motor|starter|M\\d+|drive|sürücü|inverter|softstarter|DOL|VFD|⊏⊐|▭M)",
+          "text_matches": 182,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "buton_sensor": {
+        "criteria_name": "buton_sensor",
+        "found": true,
+        "content": "Text: ['SWITCH', 'B88', 'B88']",
+        "score": 1.6,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?i)(?:buton|button|sensör|sensor|S\\d+|B\\d+|switch|anahtar|proximity|PNP|NPN|○|◯|⊙)",
+          "text_matches": 426,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "ac_dc_guc": {
+        "criteria_name": "ac_dc_guc",
+        "found": true,
+        "content": "Text: ['-', '-', '-']",
+        "score": 1.6,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?i)(?:AC|DC|güç|power|[0-9]+[VvAa]|~|⎓|[1-3]~|\\+|-|N|PE|L[123]|\\∿|=)",
+          "text_matches": 8351,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      }
+    },
+    "Şematik Yerleşim": {
+      "bilgi_akisi": {
+        "criteria_name": "bilgi_akisi",
+        "found": true,
+        "content": "Text: ['INPUT', 'INPUT', 'OUTPUT']",
+        "score": 2.4000000000000004,
+        "max_score": 3,
+        "details": {
+          "pattern_used": "(?i)(?:giriş|input|çıkış|output|soldan|sağa|yukarı|aşağı|→|←|↑|↓|⟶|⇾)",
+          "text_matches": 48,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "mantikli_dizilim": {
+        "criteria_name": "mantikli_dizilim",
+        "found": true,
+        "content": "Text: ['CONTROL', 'CONTROL', 'CONTROL']",
+        "score": 2.4000000000000004,
+        "max_score": 3,
+        "details": {
+          "pattern_used": "(?i)(?:işleme|process|dönüşüm|transformation|kontrol|control|güç|power|▭|⊏⊐)",
+          "text_matches": 124,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "sayfa_basligi": {
+        "criteria_name": "sayfa_basligi",
+        "found": true,
+        "content": "Text: ['REF', 'NO', 'NO']",
+        "score": 1.6,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?i)(?:proje|project|tarih|date|çizim|drawing|revizyon|revision|ref|no)",
+          "text_matches": 390,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      },
+      "cerceve_frame": {
+        "criteria_name": "cerceve_frame",
+        "found": true,
+        "content": "Text: ['PAGE', 'NUMBER', 'PAGE']",
+        "score": 1.6,
+        "max_score": 2,
+        "details": {
+          "pattern_used": "(?i)(?:çerçeve|frame|başlık|title|numara|number|sayfa|page|sheet|▭|□)",
+          "text_matches": 172,
+          "visual_matches": 0
+        },
+        "visual_evidence": []
+      }
+    }
+  },
+  "scoring": {
+    "category_scores": {
+      "Semboller ve İşaretler": {
+        "earned": 24.000000000000004,
+        "possible": 30,
+        "normalized": 25.66,
+        "max_weight": 30,
+        "percentage": 80.0
+      },
+      "Bağlantı Hatları": {
+        "earned": 16.400000000000002,
+        "possible": 25,
+        "normalized": 18.61,
+        "max_weight": 25,
+        "percentage": 65.6
+      },
+      "Etiketleme ve Numara Sistemleri": {
+        "earned": 16.0,
+        "possible": 20,
+        "normalized": 17.11,
+        "max_weight": 20,
+        "percentage": 80.0
+      },
+      "Kontrol Panosu / Makine Otomasyon Öğeleri": {
+        "earned": 12.0,
+        "possible": 15,
+        "normalized": 12.83,
+        "max_weight": 15,
+        "percentage": 80.0
+      },
+      "Şematik Yerleşim": {
+        "earned": 8.0,
+        "possible": 10,
+        "normalized": 8.55,
+        "max_weight": 10,
+        "percentage": 80.0
+      }
+    },
+    "total_score": 91.04,
+    "total_max_score": 100,
+    "overall_percentage": 91.04
+  },
+  "recommendations": [
+    "⚡ Elektrik Geçerlilik: Elektrik devre güvenilirlik: %100.0 (24/24 kriter)",
+    "✅ Semboller ve İşaretler bölümü yeterli (%80.0)",
+    "⚠️ Bağlantı Hatları bölümü geliştirilmeli (%65.6)",
+    "✅ Etiketleme ve Numara Sistemleri bölümü yeterli (%80.0)",
+    "✅ Kontrol Panosu / Makine Otomasyon Öğeleri bölümü yeterli (%80.0)",
+    "✅ Şematik Yerleşim bölümü yeterli (%80.0)"
+  ],
+  "summary": {
+    "total_score": 91.04,
+    "percentage": 91.04,
+    "status": "PASS",
+    "circuit_type": "ELECTRIC"
+  }
+}
