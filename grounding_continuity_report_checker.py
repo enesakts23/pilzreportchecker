@@ -9,6 +9,22 @@ import pandas as pd
 from dataclasses import dataclass, asdict
 import logging
 
+# Offline çeviri için Helsinki-NLP modelleri
+try:
+    from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
+    OFFLINE_TRANSLATION_AVAILABLE = True
+except ImportError:
+    OFFLINE_TRANSLATION_AVAILABLE = False
+    print("⚠️ Offline çeviri desteği için: pip install transformers torch sentencepiece")
+
+# Dil tespiti için
+try:
+    from langdetect import detect
+    LANGUAGE_DETECTION_AVAILABLE = True
+except ImportError:
+    LANGUAGE_DETECTION_AVAILABLE = False
+    print("⚠️ Dil tespiti için: pip install langdetect")
+
 # Logging konfigürasyonu
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -56,6 +72,13 @@ class GroundingContinuityReportAnalyzer:
     """Topraklama Süreklilik rapor analiz sınıfı"""
     
     def __init__(self):
+        # Offline çeviri modellerini başlat
+        self.translation_models = {}
+        self.language_detector = None
+        
+        if OFFLINE_TRANSLATION_AVAILABLE and LANGUAGE_DETECTION_AVAILABLE:
+            self.init_translation_models()
+        
         self.criteria_weights = {
             "Genel Rapor Bilgileri": 15,
             "Ölçüm Metodu ve Standart Referansları": 15,
@@ -111,6 +134,140 @@ class GroundingContinuityReportAnalyzer:
             }
         }
     
+    def init_translation_models(self):
+        """Offline çeviri modellerini başlat"""
+        try:
+            logger.info("Offline çeviri modelleri yükleniyor...")
+            
+            # En yaygın diller için Helsinki-NLP modelleri
+            model_mapping = {
+                'en': 'Helsinki-NLP/opus-mt-en-tr',  # İngilizce -> Türkçe
+                'de': 'Helsinki-NLP/opus-mt-de-tr',  # Almanca -> Türkçe
+                'fr': 'Helsinki-NLP/opus-mt-fr-tr',  # Fransızca -> Türkçe
+                'es': 'Helsinki-NLP/opus-mt-es-tr',  # İspanyolca -> Türkçe
+                'it': 'Helsinki-NLP/opus-mt-it-tr',  # İtalyanca -> Türkçe
+            }
+            
+            for lang_code, model_name in model_mapping.items():
+                try:
+                    # Model varsa yükle, yoksa atla
+                    tokenizer = AutoTokenizer.from_pretrained(model_name)
+                    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+                    
+                    self.translation_models[lang_code] = {
+                        'tokenizer': tokenizer,
+                        'model': model,
+                        'pipeline': pipeline('translation', 
+                                           model=model, 
+                                           tokenizer=tokenizer,
+                                           device=-1)  # CPU kullan
+                    }
+                    logger.info(f"✅ {lang_code.upper()} -> TR modeli yüklendi")
+                except Exception as e:
+                    logger.warning(f"⚠️ {lang_code.upper()} -> TR modeli yüklenemedi: {e}")
+                    
+            logger.info(f"Toplam {len(self.translation_models)} çeviri modeli hazır")
+            
+        except Exception as e:
+            logger.error(f"Çeviri modelleri başlatılamadı: {e}")
+    
+    def detect_language(self, text: str) -> str:
+        """Metin dilini tespit et"""
+        if not LANGUAGE_DETECTION_AVAILABLE:
+            return 'tr'
+        
+        try:
+            # Sadece ilk 500 karakterle dil tespiti (hız için)
+            sample_text = text[:500].strip()
+            if not sample_text:
+                return 'tr'
+                
+            detected_lang = detect(sample_text)
+            logger.info(f"Tespit edilen dil: {detected_lang}")
+            return detected_lang
+            
+        except Exception as e:
+            logger.warning(f"Dil tespiti başarısız: {e}")
+            return 'tr'
+    
+    def translate_to_turkish(self, text: str, source_lang: str) -> str:
+        """Metni Türkçe'ye çevir"""
+        if source_lang == 'tr' or source_lang not in self.translation_models:
+            return text
+        
+        try:
+            model_info = self.translation_models[source_lang]
+            pipeline_translator = model_info['pipeline']
+            
+            logger.info(f"Metin {source_lang.upper()} -> TR çevriliyor...")
+            
+            # Uzun metinleri parçalara böl
+            max_length = 512  # Transformer model limiti
+            text_chunks = []
+            
+            # Metni cümlelere böl
+            sentences = re.split(r'[.!?]+', text)
+            
+            current_chunk = ""
+            for sentence in sentences:
+                if len(current_chunk + sentence) < max_length:
+                    current_chunk += sentence + ". "
+                else:
+                    if current_chunk:
+                        text_chunks.append(current_chunk.strip())
+                    current_chunk = sentence + ". "
+            
+            if current_chunk:
+                text_chunks.append(current_chunk.strip())
+            
+            # Her parçayı çevir
+            translated_chunks = []
+            for i, chunk in enumerate(text_chunks):
+                if not chunk.strip():
+                    continue
+                    
+                try:
+                    result = pipeline_translator(chunk)
+                    if isinstance(result, list) and len(result) > 0:
+                        translated_text = result[0]['translation_text']
+                    else:
+                        translated_text = str(result)
+                    
+                    translated_chunks.append(translated_text)
+                    
+                    if i % 10 == 0:  # Her 10 parçada progress göster
+                        logger.info(f"Çeviri ilerlemesi: {i+1}/{len(text_chunks)}")
+                        
+                except Exception as chunk_error:
+                    logger.warning(f"Parça çevirisi başarısız: {chunk_error}")
+                    translated_chunks.append(chunk)  # Çeviremezse orijinali kullan
+            
+            final_text = ' '.join(translated_chunks)
+            logger.info("✅ Çeviri tamamlandı")
+            return final_text
+            
+        except Exception as e:
+            logger.error(f"Çeviri hatası: {e}")
+            return text  # Hata durumunda orijinal metni döndür
+    
+    def get_language_name(self, lang_code: str) -> str:
+        """Dil kodunu dil adına çevir"""
+        lang_names = {
+            'tr': 'Türkçe',
+            'en': 'İngilizce', 
+            'de': 'Almanca',
+            'fr': 'Fransızca',
+            'es': 'İspanyolca',
+            'it': 'İtalyanca',
+            'pt': 'Portekizce',
+            'ru': 'Rusça',
+            'zh': 'Çince',
+            'ja': 'Japonca',
+            'ko': 'Korece',
+            'ar': 'Arapça'
+        }
+        return lang_names.get(lang_code, f'Bilinmeyen ({lang_code})')
+
     def extract_text_from_pdf(self, pdf_path: str) -> str:
         """PDF'den metin çıkarma"""
         try:
@@ -158,19 +315,34 @@ class GroundingContinuityReportAnalyzer:
             logger.error(f"Excel okuma hatası: {e}")
             return ""
     
-    def get_file_text(self, file_path: str) -> str:
-        """Dosya tipine göre metin çıkarma"""
+    def get_file_text(self, file_path: str) -> Tuple[str, str]:
+        """Dosya tipine göre metin çıkarma ve çeviri"""
         file_extension = os.path.splitext(file_path)[1].lower()
         
+        # Önce metni çıkar
+        original_text = ""
         if file_extension == '.pdf':
-            return self.extract_text_from_pdf(file_path)
+            original_text = self.extract_text_from_pdf(file_path)
         elif file_extension in ['.docx', '.doc']:
-            return self.extract_text_from_docx(file_path)
+            original_text = self.extract_text_from_docx(file_path)
         elif file_extension in ['.xlsx', '.xls']:
-            return self.extract_text_from_excel(file_path)
+            original_text = self.extract_text_from_excel(file_path)
         else:
             logger.warning(f"Desteklenmeyen dosya tipi: {file_extension}")
-            return ""
+            return "", "unknown"
+        
+        if not original_text:
+            return "", "unknown"
+        
+        # Dil tespiti
+        detected_lang = self.detect_language(original_text)
+        
+        # Çeviri (gerekirse)
+        if detected_lang != 'tr' and len(self.translation_models) > 0:
+            translated_text = self.translate_to_turkish(original_text, detected_lang)
+            return translated_text, detected_lang
+        else:
+            return original_text, detected_lang
     
     def check_date_validity(self, text: str, file_path: str = None) -> Tuple[bool, str, str, str]:
         """1 yıl kuralı - Ölçüm tarihi ile rapor tarihi arasındaki fark kontrolü"""
@@ -474,16 +646,26 @@ class GroundingContinuityReportAnalyzer:
         """Detaylı rapor oluşturma"""
         logger.info("Topraklama Süreklilik rapor analizi başlatılıyor...")
         
-        # Dosyadan metin çıkar
-        text = self.get_file_text(file_path)
+        # Dosyadan metin çıkar ve dil bilgisi al
+        text, detected_language = self.get_file_text(file_path)
         if not text:
             return {"error": "Dosya okunamadı"}
+        
+        # Dil bilgisini logla
+        language_name = self.get_language_name(detected_language)
+        logger.info(f"📖 Belge dili: {language_name}")
+        if detected_language != 'tr':
+            logger.info("🔄 Çeviri işlemi tamamlandı")
         
         # Tarih geçerliliği kontrolü (1 yıl kuralı)
         date_valid, olcum_tarihi, rapor_tarihi, date_message = self.check_date_validity(text, file_path)
         
         # Spesifik değerleri çıkar
         extracted_values = self.extract_specific_values(text, file_path)
+        
+        # Dil bilgisini extracted_values'a ekle
+        extracted_values['detected_language'] = detected_language
+        extracted_values['language_name'] = language_name
         
         # Her kategori için analiz yap
         analysis_results = {}
@@ -704,6 +886,9 @@ def main():
     print()
     print("### Yüklenen Belge İçeriği:")
     print(f"- **Belge Türü:** Topraklama Süreklilik Ölçüm ve Uygunluk Raporu")
+    print(f"- **Belge Dili:** {report['cikarilan_degerler'].get('language_name', 'Bilinmiyor')}")
+    if report['cikarilan_degerler'].get('detected_language', 'tr') != 'tr':
+        print(f"- **Çeviri Durumu:** ✅ {report['cikarilan_degerler']['language_name']} → Türkçe çeviri tamamlandı")
     print(f"- **Proje No:** {report['cikarilan_degerler'].get('proje_no', 'Bulunamadı')}")
     print(f"- **Rapor No:** {report['cikarilan_degerler'].get('rapor_numarasi', 'Bulunamadı')}")
     print(f"- **Hat/Bölge:** {report['cikarilan_degerler'].get('makine_hatlari', 'Bulunamadı')}")
