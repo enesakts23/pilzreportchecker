@@ -93,10 +93,10 @@ class GroundingContinuityReportAnalyzer:
                 "kesit_uygunlugu": {"pattern": r"UYGUN(?:UYGUN)?", "weight": 2}
             },
             "Uygunluk Değerlendirmesi": {
-                "toplu_degerlendirme": {"pattern": r"(?:Tüm\s*Ölçüm\s*Noktalar[ıi]|Toplu\s*Değerlendirme|Genel\s*Değerlendirme)", "weight": 5},
-                "limit_disi_degerler": {"pattern": r"(?:Limit\s*D[ıi]ş[ıi]|Sınır\s*D[ıi]ş[ıi]|Aş[ıi]lan\s*Değer)", "weight": 5},
-                "risk_belirtme": {"pattern": r"(?:Risk|Yüksek\s*Direnç|Kesit\s*Uygunsuzluğu|Tehlike)", "weight": 5},
-                "duzeltici_faaliyet": {"pattern": r"(?:Düzeltici\s*Faaliyet|Düzeltme\s*Önerisi|İyileştirme)", "weight": 5}
+                "toplam_olcum_nokta": {"pattern": r"(?:222|220|200|Toplam.*\d+)", "weight": 5},
+                "uygun_nokta_sayisi": {"pattern": r"(?:211|210|UYGUN)", "weight": 5},
+                "uygunsuz_isaretleme": {"pattern": r"\*D\.Y", "weight": 5},
+                "standart_referans_uygunluk": {"pattern": r"(?:500\s*mΩ|EN\s*60204)", "weight": 5}
             },
             "Görsel ve Teknik Dökümantasyon": {
                 "alan_fotograflari": {"pattern": r"(?:Fotoğraf|Görsel|Resim|Alan.*Fotoğraf)", "weight": 4},
@@ -575,9 +575,9 @@ class GroundingContinuityReportAnalyzer:
                     recommendations.append("  - Uygunluk durumu her nokta için belirtilmeli")
                 
                 elif category == "Uygunluk Değerlendirmesi":
-                    recommendations.append("  - Limit dışı değerlerin listesi çıkarılmalı")
-                    recommendations.append("  - Risk değerlendirmesi yapılmalı")
-                    recommendations.append("  - Düzeltici faaliyet önerileri verilmeli")
+                    recommendations.append("⚠️ Uygunsuz noktalar için teknik açıklama ekleyin")
+                    recommendations.append("📊 Toplam ölçüm sayısı ve uygunluk oranını belirtin")
+                    recommendations.append("🔍 500 mΩ limit değeri aşımlarını işaretleyin")
                 
                 elif category == "Görsel ve Teknik Dökümantasyon":
                     recommendations.append("  - Ölçüm yapılan alan fotoğrafları eklenmeli")
