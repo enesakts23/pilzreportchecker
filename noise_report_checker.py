@@ -380,7 +380,7 @@ class NoiseReportAnalyzer:
 def main():
     analyzer = NoiseReportAnalyzer()
     
-    pdf_path = "C20.140 - FORD - Gürültü Ölçüm Raporu V0 2.pdf"
+    pdf_path = "C19.082 P&G - Cobot Paletleme- Gürültü Ölçüm Raporu V0.pdf"
     docx_path = "Gürültü Ölçüm Raporu_Kriterleri_Puanlama.docx"
     
     if not os.path.exists(pdf_path):

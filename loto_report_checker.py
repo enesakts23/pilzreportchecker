@@ -585,7 +585,7 @@ def main():
     """Ana fonksiyon"""
     analyzer = LOTOReportAnalyzer()
 
-    pdf_path = "lotoreport2.pdf"
+    pdf_path = "lotoreport.pdf"
 
     if not os.path.exists(pdf_path):
         print(f"❌ PDF dosyası bulunamadı: {pdf_path}")

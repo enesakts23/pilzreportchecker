@@ -425,7 +425,7 @@ def main():
     """Ana fonksiyon"""
     analyzer = ManualReportAnalyzer()
 
-    pdf_path = "manual.pdf"
+    pdf_path = "VKT 500 KULLANIM KILAVUZU.pdf"
 
     if not os.path.exists(pdf_path):
         print(f"❌ PDF dosyası bulunamadı: {pdf_path}")

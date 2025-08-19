@@ -403,7 +403,7 @@ def main():
     analyzer = ESPEReportAnalyzer()
     
     # Dosya yolları
-    pdf_path = "C24.017 - ESPE - GPF Simple Leak Test.pdf"
+    pdf_path = "T2-MCC1202 - ESPE Kontrol Raporu.pdf"
     docx_path = "ESPE_Rapor_Kriterleri_Puanlama.docx"
     
     # Dosyaların varlığını kontrol et

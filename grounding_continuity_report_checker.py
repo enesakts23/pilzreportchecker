@@ -861,7 +861,7 @@ def main():
     analyzer = GroundingContinuityReportAnalyzer()
     
     # Dosya yolu - Proje root'undaki belgeyi analiz et
-    file_path = "C20.140 SM 20092 Topraklama Süreklilik Ölçüm ve Uygunluk Raporu v0.pdf"
+    file_path = "E21.207 - Toyota - Chifong LVD Ölçüm .pdf"
     
     # Dosyanın varlığını kontrol et
     if not os.path.exists(file_path):
