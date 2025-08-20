@@ -53,23 +53,22 @@ class ManualReportAnalyzer:
             "Genel Bilgiler": 10,
             "Giriş ve Amaç": 5,
             "Güvenlik Bilgileri": 15,
-            "Ürün Tanıtımı": 5,
+            "Ürün Tanıtımı": 10,
             "Kurulum ve Montaj Bilgileri": 15,
             "Kullanım Talimatları": 20,
-            "Bakım ve Temizlik": 15,
+            "Bakım ve Temizlik": 10,
             "Arıza Giderme": 15
         }
         
         self.criteria_details = {
             "Genel Bilgiler": {
-                "kilavuz_adi_kod": {"pattern": r"(?:Kılavuz|Manual|Guide|Kullan[ıi]m\s*K[ıi]lavuzu|User\s*Manual|Operating\s*Manual)", "weight": 4},
+                "kilavuz_adi_kod": {"pattern": r"(?:Kılavuz|Manual|Guide|Kullan[ıi]m\s*K[ıi]lavuzu|User\s*Manual|Operating\s*Manual)", "weight": 5},
                 "urun_modeli": {"pattern": r"(?:Ürün|Product|Model|Seri\s*No|Serial\s*Number|Part\s*Number)", "weight": 3},
-                "revizyon_bilgisi": {"pattern": r"(?:Revizyon|Revision|Rev\.?|Version|v)\s*[:=]?\s*(\d+|[A-Z])", "weight": 3}
+                "revizyon_bilgisi": {"pattern": r"(?:Revizyon|Revision|Rev\.?|Version|v)\s*[:=]?\s*(\d+|[A-Z])", "weight": 2}
             },
             "Giriş ve Amaç": {
-                "kilavuz_amaci": {"pattern": r"(?:Amaç|Purpose|Objective|Bu\s*k[ıi]lavuz|This\s*manual|Introduction|Giriş)", "weight": 2},
-                "kapsam": {"pattern": r"(?:Kapsam|Scope|Coverage|Bu\s*dokuman|This\s*document)", "weight": 2},
-                "hedef_kullanici": {"pattern": r"(?:Hedef|Target|Kullan[ıi]c[ıi]|User|Operator|Personnel)", "weight": 1}
+                "kilavuz_amaci": {"pattern": r"(?:Amaç|Purpose|Objective|Bu\s*k[ıi]lavuz|This\s*manual|Introduction|Giriş)", "weight": 3},
+                "kapsam": {"pattern": r"(?:Kapsam|Scope|Coverage|Bu\s*dokuman|This\s*document)", "weight": 2}
             },
             "Güvenlik Bilgileri": {
                 "genel_guvenlik": {"pattern": r"(?:Güvenlik|Safety|Güvenlik\s*Uyar[ıi]s[ıi]|Safety\s*Warning|UYARI|WARNING|DİKKAT|CAUTION)", "weight": 4},
@@ -78,9 +77,10 @@ class ManualReportAnalyzer:
                 "kkd_gerekliligi": {"pattern": r"(?:KKD|PPE|Personal\s*Protective|Koruyucu\s*Donanım|Protective\s*Equipment|Eldiven|Glove|Gözlük|Goggle|Koruyucu\s*Alet|Koruyucu\s*Ekipman|Safety\s*Equipment|Güvenlik\s*Ekipman|Koruyucu.*?kullan|Protective.*?use|Safety.*?wear|Güvenlik.*?giy|Emniy.*?alet|İş\s*güvenliği\s*ekipman)", "weight": 4}
             },
             "Ürün Tanıtımı": {
-                "urun_tanimi": {"pattern": r"(?:Ürün\s*Tan[ıi]m[ıi]|Product\s*Description|Genel\s*Tan[ıi]m|General\s*Description)", "weight": 2},
-                "teknik_ozellikler": {"pattern": r"(?:Teknik\s*Özellik|Technical\s*Specification|Specification|Özellik|Feature)", "weight": 2},
-                "bilesenler": {"pattern": r"(?:Bileşen|Component|Parça|Part|Liste|List|İçerik|Content)", "weight": 1}
+                "urun_tanimi": {"pattern": r"(?:Ürün\s*Tan[ıi]m[ıi]|Product\s*Description|Genel\s*Tan[ıi]m|General\s*Description)", "weight": 3},
+                "teknik_ozellikler": {"pattern": r"(?:Teknik\s*Özellik|Technical\s*Specification|Specification|Özellik|Feature)", "weight": 3},
+                "bilesenler": {"pattern": r"(?:Bileşen|Component|Parça|Part|Liste|List|İçerik|Content)", "weight": 2},
+                "gorseller": {"pattern": r"(?:Görsel|Image|Resim|Picture|Şekil|Figure|Fotoğraf|Photo)", "weight": 2}
             },
             "Kurulum ve Montaj Bilgileri": {
                 "kurulum_oncesi": {"pattern": r"(?:Kurulum\s*Öncesi|Before\s*Installation|Hazırl[ıi]k|Preparation|Ön\s*hazırl[ıi]k)", "weight": 4},
@@ -95,15 +95,15 @@ class ManualReportAnalyzer:
                 "kullanim_ipuclari": {"pattern": r"(?:İpucu|Tip|Öneri|Recommendation|Doğru\s*kullan[ıi]m|Proper\s*use)", "weight": 5}
             },
             "Bakım ve Temizlik": {
-                "duzenli_bakim": {"pattern": r"(?:Bak[ıi]m|Maintenance|Düzenli|Regular|Periyodik|Periodic)", "weight": 5},
-                "temizlik_yontemleri": {"pattern": r"(?:Temizlik|Cleaning|Temizle|Clean|Hijyen|Hygiene)", "weight": 5},
-                "parca_degisimi": {"pattern": r"(?:Parça\s*Değiş|Part\s*Replace|Yedek\s*Parça|Spare\s*Part|Değiştir|Replace)", "weight": 3},
-                "bakim_planlari": {"pattern": r"(?:Bak[ıi]m\s*Plan|Maintenance\s*Schedule|Takvim|Calendar|Plan)", "weight": 2}
+                "duzenli_bakim": {"pattern": r"(?:Bak[ıi]m|Maintenance|Düzenli|Regular|Periyodik|Periodic)", "weight": 3},
+                "temizlik_yontemleri": {"pattern": r"(?:Temizlik|Cleaning|Temizle|Clean|Hijyen|Hygiene)", "weight": 3},
+                "parca_degisimi": {"pattern": r"(?:Parça\s*Değiş|Part\s*Replace|Yedek\s*Parça|Spare\s*Part|Değiştir|Replace)", "weight": 4}
             },
             "Arıza Giderme": {
-                "sorun_cozumleri": {"pattern": r"(?:Sorun|Problem|Ar[ıi]za|Fault|Troubleshoot|Çözüm|Solution)", "weight": 6},
+                "sorun_cozumleri": {"pattern": r"(?:Sorun|Problem|Ar[ıi]za|Fault|Troubleshoot|Çözüm|Solution)", "weight": 5},
                 "hata_kodlari": {"pattern": r"(?:Hata\s*Kod|Error\s*Code|Kod|Code|Alarm|Uyar[ıi]\s*Lambas[ıi]|Warning\s*Light|Acil\s*Durum\s*Buton|Emergency\s*Button|Hata\s*Gösterg|Error\s*Indicator|Uyar[ıi]\s*Sistemi|Warning\s*System|K[ıi]z[ıi]l\s*[Iı]ş[ıi]k|Red\s*Light|Alarm\s*Sistemi|Hata\s*Durumu|Error\s*Status|Aktifleş|Activate)", "weight": 5},
-                "teknik_destek": {"pattern": r"(?:Teknik\s*Destek|Technical\s*Support|Destek|Support|İletişim|Contact)", "weight": 4}
+                "teknik_destek": {"pattern": r"(?:Teknik\s*Destek|Technical\s*Support|Destek|Support|İletişim|Contact|Tel|Phone|Telefon|E-?mail|Mail|Fax|Website|Web|www\.|@|\.com|\.net|\.org|\+90|\+\d{1,3}|\d{3}[-.\s]\d{3}[-.\s]\d{4}|\(\d{3}\)\s*\d{3}[-.\s]\d{4}|0\d{3}\s*\d{3}\s*\d{2}\s*\d{2})", "weight": 3},
+                "teknik_cizimler": {"pattern": r"(?:Çizim|Drawing|Şema|Scheme|Diyagram|Diagram|Plan)", "weight": 2}
             }
         }
     
@@ -410,7 +410,7 @@ def main():
     """Ana fonksiyon"""
     analyzer = ManualReportAnalyzer()
 
-    pdf_path = "VKT 500 KULLANIM KILAVUZU.pdf"
+    pdf_path = "T240303_Indonesia_DANONE-Electrical Instruction manual_20240828_V1.pdf"
 
     if not os.path.exists(pdf_path):
         print(f"❌ PDF dosyası bulunamadı: {pdf_path}")
