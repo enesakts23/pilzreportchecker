@@ -78,15 +78,19 @@ def analyze_espe_report():
                     'message': report['error']
                 }), 500
 
-            # Sadece gerekli alanları döndür
-            minimal_report = {
-                'oneriler': report.get('oneriler'),
-                'ozet': report.get('ozet'),
-                'puanlama': report.get('puanlama'),
+            # Tam detaylı raporu döndür (espe_report_checker.py gibi)
+            detailed_report = {
+                'success': True,
+                'analiz_tarihi': report.get('analiz_tarihi'),
+                'dosya_bilgileri': report.get('dosya_bilgileri'),
                 'tarih_gecerliligi': report.get('tarih_gecerliligi'),
-                'success': True
+                'cikarilan_degerler': report.get('cikarilan_degerler'),
+                'kategori_analizleri': report.get('kategori_analizleri'),
+                'puanlama': report.get('puanlama'),
+                'oneriler': report.get('oneriler'),
+                'ozet': report.get('ozet')
             }
-            return jsonify(minimal_report), 200
+            return jsonify(detailed_report), 200
 
         except Exception as e:
             # Clean up in case of error
