@@ -32,8 +32,6 @@ class ManualCriteria:
     kullanim_talimatlari: Dict[str, Any]
     bakim_temizlik: Dict[str, Any]
     ariza_giderme: Dict[str, Any]
-    teknik_dokumantasyon: Dict[str, Any]
-    ek_bilgiler_yasal: Dict[str, Any]
 
 @dataclass
 class ManualAnalysisResult:
@@ -55,22 +53,18 @@ class ManualReportAnalyzer:
             "Genel Bilgiler": 10,
             "Giriş ve Amaç": 5,
             "Güvenlik Bilgileri": 15,
-            "Ürün Tanıtımı": 10,
+            "Ürün Tanıtımı": 5,
             "Kurulum ve Montaj Bilgileri": 15,
             "Kullanım Talimatları": 20,
-            "Bakım ve Temizlik": 10,
-            "Arıza Giderme": 10,
-            "Teknik Dokümantasyon": 3,
-            "Ek Bilgiler ve Yasal Uyarılar": 2
+            "Bakım ve Temizlik": 15,
+            "Arıza Giderme": 15
         }
         
         self.criteria_details = {
             "Genel Bilgiler": {
-                "kilavuz_adi_kod": {"pattern": r"(?:Kılavuz|Manual|Guide|Kullan[ıi]m\s*K[ıi]lavuzu|User\s*Manual|Operating\s*Manual)", "weight": 2},
-                "urun_modeli": {"pattern": r"(?:Ürün|Product|Model|Seri\s*No|Serial\s*Number|Part\s*Number)", "weight": 2},
-                "hazırlama_tarihi": {"pattern": r"(?:Hazırlama|Prepared|Date|Tarih|Version|Versiyon)\s*[:=]?\s*(\d{1,2}[./]\d{1,2}[./]\d{4})", "weight": 2},
-                "hazirlayan_onaylayan": {"pattern": r"(?:Hazırlayan|Prepared\s*by|Onaylayan|Approved\s*by|Author|Editor)", "weight": 2},
-                "revizyon_bilgisi": {"pattern": r"(?:Revizyon|Revision|Rev\.?|Version|v)\s*[:=]?\s*(\d+|[A-Z])", "weight": 2}
+                "kilavuz_adi_kod": {"pattern": r"(?:Kılavuz|Manual|Guide|Kullan[ıi]m\s*K[ıi]lavuzu|User\s*Manual|Operating\s*Manual)", "weight": 4},
+                "urun_modeli": {"pattern": r"(?:Ürün|Product|Model|Seri\s*No|Serial\s*Number|Part\s*Number)", "weight": 3},
+                "revizyon_bilgisi": {"pattern": r"(?:Revizyon|Revision|Rev\.?|Version|v)\s*[:=]?\s*(\d+|[A-Z])", "weight": 3}
             },
             "Giriş ve Amaç": {
                 "kilavuz_amaci": {"pattern": r"(?:Amaç|Purpose|Objective|Bu\s*k[ıi]lavuz|This\s*manual|Introduction|Giriş)", "weight": 2},
@@ -81,13 +75,12 @@ class ManualReportAnalyzer:
                 "genel_guvenlik": {"pattern": r"(?:Güvenlik|Safety|Güvenlik\s*Uyar[ıi]s[ıi]|Safety\s*Warning|UYARI|WARNING|DİKKAT|CAUTION)", "weight": 4},
                 "tehlikeler": {"pattern": r"(?:Tehlike|Hazard|Risk|Tehlikeli|Dangerous|Yaralanma|Injury)", "weight": 4},
                 "guvenlik_prosedur": {"pattern": r"(?:Prosedür|Procedure|Güvenlik\s*Prosedür|Safety\s*Procedure|Uyulmas[ıi]\s*gereken)", "weight": 3},
-                "kkd_gerekliligi": {"pattern": r"(?:KKD|PPE|Personal\s*Protective|Koruyucu\s*Donanım|Protective\s*Equipment|Eldiven|Glove|Gözlük|Goggle)", "weight": 4}
+                "kkd_gerekliligi": {"pattern": r"(?:KKD|PPE|Personal\s*Protective|Koruyucu\s*Donanım|Protective\s*Equipment|Eldiven|Glove|Gözlük|Goggle|Koruyucu\s*Alet|Koruyucu\s*Ekipman|Safety\s*Equipment|Güvenlik\s*Ekipman|Koruyucu.*?kullan|Protective.*?use|Safety.*?wear|Güvenlik.*?giy|Emniy.*?alet|İş\s*güvenliği\s*ekipman)", "weight": 4}
             },
             "Ürün Tanıtımı": {
-                "urun_tanimi": {"pattern": r"(?:Ürün\s*Tan[ıi]m[ıi]|Product\s*Description|Genel\s*Tan[ıi]m|General\s*Description)", "weight": 3},
-                "teknik_ozellikler": {"pattern": r"(?:Teknik\s*Özellik|Technical\s*Specification|Specification|Özellik|Feature)", "weight": 3},
-                "bilesenler": {"pattern": r"(?:Bileşen|Component|Parça|Part|Liste|List|İçerik|Content)", "weight": 2},
-                "gorseller": {"pattern": r"(?:Görsel|Image|Resim|Picture|Şekil|Figure|Fotoğraf|Photo)", "weight": 2}
+                "urun_tanimi": {"pattern": r"(?:Ürün\s*Tan[ıi]m[ıi]|Product\s*Description|Genel\s*Tan[ıi]m|General\s*Description)", "weight": 2},
+                "teknik_ozellikler": {"pattern": r"(?:Teknik\s*Özellik|Technical\s*Specification|Specification|Özellik|Feature)", "weight": 2},
+                "bilesenler": {"pattern": r"(?:Bileşen|Component|Parça|Part|Liste|List|İçerik|Content)", "weight": 1}
             },
             "Kurulum ve Montaj Bilgileri": {
                 "kurulum_oncesi": {"pattern": r"(?:Kurulum\s*Öncesi|Before\s*Installation|Hazırl[ıi]k|Preparation|Ön\s*hazırl[ıi]k)", "weight": 4},
@@ -102,23 +95,15 @@ class ManualReportAnalyzer:
                 "kullanim_ipuclari": {"pattern": r"(?:İpucu|Tip|Öneri|Recommendation|Doğru\s*kullan[ıi]m|Proper\s*use)", "weight": 5}
             },
             "Bakım ve Temizlik": {
-                "duzenli_bakim": {"pattern": r"(?:Bak[ıi]m|Maintenance|Düzenli|Regular|Periyodik|Periodic)", "weight": 3},
-                "temizlik_yontemleri": {"pattern": r"(?:Temizlik|Cleaning|Temizle|Clean|Hijyen|Hygiene)", "weight": 3},
-                "parca_degisimi": {"pattern": r"(?:Parça\s*Değiş|Part\s*Replace|Yedek\s*Parça|Spare\s*Part|Değiştir|Replace)", "weight": 4}
+                "duzenli_bakim": {"pattern": r"(?:Bak[ıi]m|Maintenance|Düzenli|Regular|Periyodik|Periodic)", "weight": 5},
+                "temizlik_yontemleri": {"pattern": r"(?:Temizlik|Cleaning|Temizle|Clean|Hijyen|Hygiene)", "weight": 5},
+                "parca_degisimi": {"pattern": r"(?:Parça\s*Değiş|Part\s*Replace|Yedek\s*Parça|Spare\s*Part|Değiştir|Replace)", "weight": 3},
+                "bakim_planlari": {"pattern": r"(?:Bak[ıi]m\s*Plan|Maintenance\s*Schedule|Takvim|Calendar|Plan)", "weight": 2}
             },
             "Arıza Giderme": {
-                "sorun_cozumleri": {"pattern": r"(?:Sorun|Problem|Ar[ıi]za|Fault|Troubleshoot|Çözüm|Solution)", "weight": 4},
-                "hata_kodlari": {"pattern": r"(?:Hata\s*Kod|Error\s*Code|Kod|Code|Alarm)", "weight": 3},
-                "teknik_destek": {"pattern": r"(?:Teknik\s*Destek|Technical\s*Support|Destek|Support|İletişim|Contact)", "weight": 3}
-            },
-            "Teknik Dokümantasyon": {
-                "teknik_cizimler": {"pattern": r"(?:Çizim|Drawing|Şema|Scheme|Diyagram|Diagram|Plan)", "weight": 1},
-                "baglanti_planlari": {"pattern": r"(?:Bağlant[ıi]|Connection|Elektrik|Electric|Mekanik|Mechanic)", "weight": 1},
-                "yedek_parca_listesi": {"pattern": r"(?:Yedek\s*Parça|Spare\s*Part|Liste|List|Catalog)", "weight": 1}
-            },
-            "Ek Bilgiler ve Yasal Uyarılar": {
-                "garanti": {"pattern": r"(?:Garanti|Warranty|Guarantee)", "weight": 1},
-                "yasal_uyarilar": {"pattern": r"(?:Yasal|Legal|Uyar[ıi]|Warning|Yönetmelik|Regulation|Direktif|Directive)", "weight": 1}
+                "sorun_cozumleri": {"pattern": r"(?:Sorun|Problem|Ar[ıi]za|Fault|Troubleshoot|Çözüm|Solution)", "weight": 6},
+                "hata_kodlari": {"pattern": r"(?:Hata\s*Kod|Error\s*Code|Kod|Code|Alarm|Uyar[ıi]\s*Lambas[ıi]|Warning\s*Light|Acil\s*Durum\s*Buton|Emergency\s*Button|Hata\s*Gösterg|Error\s*Indicator|Uyar[ıi]\s*Sistemi|Warning\s*System|K[ıi]z[ıi]l\s*[Iı]ş[ıi]k|Red\s*Light|Alarm\s*Sistemi|Hata\s*Durumu|Error\s*Status|Aktifleş|Activate)", "weight": 5},
+                "teknik_destek": {"pattern": r"(?:Teknik\s*Destek|Technical\s*Support|Destek|Support|İletişim|Contact)", "weight": 4}
             }
         }
     
@@ -461,10 +446,23 @@ def main():
         }.get(key, key.replace('_', ' ').title())
         print(f"{display_name}: {value}")
     
-    print("\n📊 KATEGORİ PUANLARI")
-    print("-" * 40)
+    print("\n📊 KATEGORİ PUANLARI VE DETAYLAR")
+    print("=" * 60)
     for category, score_data in report['puanlama']['category_scores'].items():
-        print(f"{category}: {score_data['normalized']}/{score_data['max_weight']} (%{score_data['percentage']:.1f})")
+        percentage = score_data['percentage']
+        print(f"\n🔍 {category}: {score_data['normalized']}/{score_data['max_weight']} (%{percentage:.1f})")
+        print("-" * 50)
+        
+        # Bu kategorinin analiz sonuçlarını göster
+        if category in report['kategori_analizleri']:
+            category_analysis = report['kategori_analizleri'][category]
+            for criterion_name, criterion_result in category_analysis.items():
+                if criterion_result.found:
+                    print(f"  ✅ {criterion_name.replace('_', ' ').title()}: {criterion_result.score}/{criterion_result.max_score} puan")
+                else:
+                    print(f"  ❌ {criterion_name.replace('_', ' ').title()}: 0/{criterion_result.max_score} puan - BULUNAMADI")
+    
+    print("\n" + "=" * 60)
     
     print("\n💡 ÖNERİLER VE DEĞERLENDİRME")
     print("-" * 40)
