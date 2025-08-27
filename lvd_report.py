@@ -45,9 +45,9 @@ class GroundingAnalysisResult:
         print("### 🚫 GEÇEMEMENİN NEDENLERİ:")
         print(f"1. **Geçme sınırı:** 70 puan, **Alınan:** {total_score} puan")
         
-        # Tarih kontrolü
+        # Tarih kontrolü artık kritik değil
         if not report['tarih_gecerliligi']['gecerli']:
-            print("2. **KRİTİK:** Ölçüm tarihi ile rapor tarihi arasındaki fark 1 yıldan fazla")
+            print("2. **BİLGİ:** Tarih bilgilerinde eksiklik var (artık kritik değil)")
         
         print("3. Kritik eksiklikler:")
         
@@ -317,12 +317,8 @@ class GroundingContinuityReportAnalyzer:
         original_text = ""
         if file_extension == '.pdf':
             original_text = self.extract_text_from_pdf(file_path)
-        elif file_extension in ['.docx', '.doc']:
-            original_text = self.extract_text_from_docx(file_path)
-        elif file_extension in ['.xlsx', '.xls']:
-            original_text = self.extract_text_from_excel(file_path)
         else:
-            logger.warning(f"Desteklenmeyen dosya tipi: {file_extension}")
+            logger.warning(f"Desteklenmeyen dosya tipi: {file_extension}. Sadece PDF desteklenir.")
             return "", "unknown"
         
         if not original_text:
@@ -400,7 +396,7 @@ class GroundingContinuityReportAnalyzer:
         return date_str.replace('.', '/').replace('-', '/')
     
     def check_date_validity(self, text: str, file_path: str = None) -> Tuple[bool, str, str, str]:
-        """1 yıl kuralı - Ölçüm tarihi ile rapor tarihi arasındaki fark kontrolü"""
+        """Tarih bilgilerini çıkar - sadece tarih tespiti için (1 yıl kısıtlaması kaldırıldı)"""
         
         # Ölçüm tarihi arama - çok kapsamlı pattern'lar
         olcum_patterns = [
@@ -471,25 +467,21 @@ class GroundingContinuityReportAnalyzer:
                 olcum_date = datetime.strptime(olcum_tarihi_clean, '%d/%m/%Y')
                 rapor_date = datetime.strptime(rapor_tarihi_clean, '%d/%m/%Y')
                 
-                # Tarih farkını hesapla
+                # Tarih farkını hesapla (bilgi amaçlı)
                 tarih_farki = (rapor_date - olcum_date).days
                 
-                # 1 yıl (365 gün) kontrolü
-                is_valid = tarih_farki <= 365
+                # 1 yıl koşulu kaldırıldı - her zaman geçerli
+                is_valid = True
                 
-                status_message = f"Ölçüm: {olcum_tarihi_clean}, Rapor: {rapor_tarihi_clean}, Fark: {tarih_farki} gün"
-                if is_valid:
-                    status_message += " (GEÇERLİ)"
-                else:
-                    status_message += " (GEÇERSİZ - 1 yıldan fazla)"
+                status_message = f"Ölçüm: {olcum_tarihi_clean}, Rapor: {rapor_tarihi_clean}, Fark: {tarih_farki} gün (GEÇERLİ)"
                 
                 return is_valid, olcum_tarihi_clean, rapor_tarihi_clean, status_message
             else:
-                return False, "Bulunamadı", rapor_tarihi, "Ölçüm tarihi bulunamadı - RAPOR GEÇERSİZ"
+                return True, "Bulunamadı", rapor_tarihi, "Ölçüm tarihi bulunamadı ama tarih kısıtlaması yok"
                 
         except ValueError as e:
             logger.error(f"Tarih parse hatası: {e}")
-            return False, olcum_tarihi or "Bulunamadı", rapor_tarihi, f"Tarih formatı hatası: {e}"
+            return True, olcum_tarihi or "Bulunamadı", rapor_tarihi, f"Tarih formatı hatası ama tarih kısıtlaması yok: {e}"
     
     def analyze_criteria(self, text: str, category: str) -> Dict[str, GroundingAnalysisResult]:
         """Belirli kategori kriterlerini analiz etme"""
@@ -955,7 +947,7 @@ class GroundingContinuityReportAnalyzer:
         if detected_language != 'tr':
             logger.info("🔄 Çeviri işlemi tamamlandı")
         
-        # Tarih geçerliliği kontrolü (1 yıl kuralı)
+        # Tarih geçerliliği kontrolü (1 yıl kuralı kaldırıldı)
         date_valid, olcum_tarihi, rapor_tarihi, date_message = self.check_date_validity(text, file_path)
         
         # Spesifik değerleri çıkar
@@ -973,12 +965,9 @@ class GroundingContinuityReportAnalyzer:
         # Puanları hesapla
         scores = self.calculate_scores(analysis_results)
         
-        # Final karar: Tarih geçersizse puan ne olursa olsun FAILED
+        # Final karar: Sadece puanla karar ver (tarih kısıtlaması kaldırıldı)
         final_status = "PASSED"
-        if not date_valid:
-            final_status = "FAILED"
-            fail_reason = "Ölçüm tarihi ile rapor tarihi arasındaki fark 1 yıldan fazla"
-        elif scores["overall_percentage"] < 70:
+        if scores["overall_percentage"] < 70:
             final_status = "FAILED"
             fail_reason = f"Toplam puan yetersiz (%{scores['overall_percentage']:.1f} < 70)"
         else:
@@ -1007,7 +996,7 @@ class GroundingContinuityReportAnalyzer:
                 "toplam_puan": scores["total_score"],
                 "yuzde": scores["overall_percentage"],
                 "final_durum": final_status,
-                "tarih_durumu": "GEÇERLİ" if date_valid else "GEÇERSİZ",
+                "tarih_durumu": "BİLGİ AMAÇLI" if not date_valid else "GEÇERLİ",
                 "gecme_durumu": "PASSED" if final_status == "PASSED" else "FAILED",
                 "fail_nedeni": fail_reason
             }
@@ -1019,11 +1008,10 @@ class GroundingContinuityReportAnalyzer:
         """Öneriler oluşturma"""
         recommendations = []
         
-        # Tarih kontrolü öncelikli
+        # Tarih kontrolü bilgi amaçlı (artık kritik değil)
         if not date_valid:
-            recommendations.append("🚨 KRİTİK: Ölçüm tarihi ile rapor tarihi arasındaki fark 1 yıldan fazla - RAPOR GEÇERSİZ")
-            recommendations.append("- Yeni ölçüm yapılması gereklidir")
-            recommendations.append("- Ölçüm tarihi rapor tarihinden en fazla 1 yıl önce olmalıdır")
+            recommendations.append("ℹ️ BİLGİ: Tarih bilgilerinde eksiklik veya format hatası var")
+            recommendations.append("- Bu durum artık rapor geçerliliğini etkilemez")
         
         # Kategori bazlı öneriler
         for category, results in analysis_results.items():
@@ -1158,20 +1146,37 @@ def main():
     """Ana fonksiyon"""
     analyzer = GroundingContinuityReportAnalyzer()
     
-    # Dosya yolu - Proje root'undaki belgeyi analiz et
-    file_path = "E21.207 - Toyota - Chifong LVD Ölçüm .pdf"
+    # Dosya yolu - Proje root'undaki belgeyi analiz et (sadece PDF)
+    test_files = [
+        "E21.207 - Toyota - Chifong LVD Ölçüm .pdf",
+        "C20.140 SM 20092 Topraklama Süreklilik Ölçüm ve Uygunluk Raporu v0.pdf"
+    ]
+    
+    # PDF dosyalarını ara
+    import glob
+    pdf_files = glob.glob("*.pdf")
+    test_files.extend(pdf_files)
+    
+    # Mevcut dosyayı bul
+    file_path = None
+    for test_file in test_files:
+        if os.path.exists(test_file):
+            file_path = test_file
+            break
     
     # Dosyanın varlığını kontrol et
-    if not os.path.exists(file_path):
-        print(f"❌ Dosya bulunamadı: {file_path}")
-        print("Mevcut dosyalar:")
+    if not file_path:
+        print(f"❌ Analiz edilecek PDF dosyası bulunamadı")
+        print("Mevcut PDF dosyaları:")
         for file in os.listdir("."):
-            if file.endswith(('.pdf', '.docx', '.xlsx')):
+            if file.endswith('.pdf'):
                 print(f"  - {file}")
         return
     
     print("⚡ Topraklama Süreklilik Rapor Analizi Başlatılıyor...")
     print("=" * 60)
+    print(f"📁 Analiz edilen dosya: {file_path}")
+    print(f"📄 Dosya formatı: {os.path.splitext(file_path)[1].upper()}")
     
     # Analizi çalıştır
     report = analyzer.generate_detailed_report(file_path)

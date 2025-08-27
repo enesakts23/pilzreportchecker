@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # Configure upload settings
 UPLOAD_FOLDER = 'temp_uploads_lvd'
-ALLOWED_EXTENSIONS = {'pdf', 'docx', 'xlsx'}
+ALLOWED_EXTENSIONS = {'pdf'}
 
 # Create upload folder if it doesn't exist
 if not os.path.exists(UPLOAD_FOLDER):
@@ -48,7 +48,7 @@ def analyze_lvd_report():
         if not allowed_file(file.filename):
             return jsonify({
                 'error': 'Invalid file type',
-                'message': 'Sadece PDF, DOCX ve XLSX dosyaları kabul edilir'
+                'message': 'Sadece PDF dosyaları kabul edilir'
             }), 400
 
         try:
@@ -136,7 +136,7 @@ def health_check():
         'service': 'LVD Report Analyzer API',
         'message': 'LVD rapor analiz servisi çalışıyor',
         'version': '1.0',
-        'supported_formats': ['PDF', 'DOCX', 'XLSX'],
+        'supported_formats': ['PDF'],
         'upload_folder': UPLOAD_FOLDER,
         'max_file_size': '16MB'
     }), 200
@@ -151,7 +151,7 @@ def api_info():
             'POST /api/lvd-report': {
                 'description': 'LVD raporunu analiz eder',
                 'parameters': {
-                    'file': 'Analiz edilecek rapor dosyası (PDF, DOCX, XLSX)'
+                    'file': 'Analiz edilecek rapor dosyası (PDF)'
                 },
                 'response': 'Detaylı analiz raporu ve puanlama'
             },
@@ -197,9 +197,11 @@ def api_info():
         },
         'supported_languages': ['Türkçe', 'İngilizce', 'Almanca', 'Fransızca', 'İspanyolca', 'İtalyanca'],
         'features': [
+            'PDF dosya desteği',
+            'PyPDF2 ile metin çıkarma',
             'Offline çeviri desteği',
             'Otomatik dil tespiti',
-            'Tarih geçerliliği kontrolü',
+            'Tarih geçerliliği kontrolü (kaldırıldı)',
             'Detaylı puanlama sistemi',
             'Kategori bazlı analiz',
             'Önerilerin sunulması',

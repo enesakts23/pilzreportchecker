@@ -3,6 +3,7 @@ import os
 from werkzeug.utils import secure_filename
 from at_type_inspection_checker import ATTypeInspectionAnalyzer
 import logging
+import pytesseract
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -10,9 +11,24 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+# Tesseract installation check
+def check_tesseract_installation():
+    """Check if Tesseract is properly installed"""
+    try:
+        # Try to get Tesseract version
+        version = pytesseract.get_tesseract_version()
+        logger.info(f"Tesseract OCR kurulu - Sürüm: {version}")
+        return True, f"Tesseract v{version}"
+    except Exception as e:
+        logger.error(f"Tesseract OCR kurulu değil: {e}")
+        return False, str(e)
+
+# Check Tesseract on startup
+tesseract_available, tesseract_info = check_tesseract_installation()
+
 # Configure upload settings
 UPLOAD_FOLDER = 'temp_uploads_at'
-ALLOWED_EXTENSIONS = {'pdf'}
+ALLOWED_EXTENSIONS = {'pdf', 'jpg', 'jpeg', 'png'}
 
 # Create upload folder if it doesn't exist
 if not os.path.exists(UPLOAD_FOLDER):
@@ -48,7 +64,7 @@ def analyze_at_declaration():
         if not allowed_file(file.filename):
             return jsonify({
                 'error': 'Invalid file type',
-                'message': 'Sadece PDF dosyaları kabul edilir'
+                'message': 'Sadece PDF, JPG, JPEG ve PNG dosyaları kabul edilir'
             }), 400
 
         try:
@@ -58,6 +74,34 @@ def analyze_at_declaration():
             file.save(filepath)
 
             logger.info(f"AT Uygunluk Beyanı analiz ediliyor: {filename}")
+
+            # Check if file requires OCR (image files or potentially image-based PDFs)
+            file_extension = os.path.splitext(filename)[1].lower()
+            requires_ocr = file_extension in ['.jpg', '.jpeg', '.png']
+            
+            # Check Tesseract availability for OCR-requiring files
+            if requires_ocr and not tesseract_available:
+                # Clean up file first
+                try:
+                    os.remove(filepath)
+                except:
+                    pass
+                
+                return jsonify({
+                    'error': 'OCR not available',
+                    'message': 'Tesseract OCR kurulu değil. Resim dosyalarını analiz edebilmek için Tesseract kurulumu gereklidir.',
+                    'details': {
+                        'tesseract_error': tesseract_info,
+                        'file_type': file_extension,
+                        'requires_ocr': True,
+                        'installation_help': {
+                            'windows': 'https://github.com/UB-Mannheim/tesseract/wiki adresinden Tesseract indirip kurun',
+                            'macos': 'brew install tesseract komutunu çalıştırın',
+                            'ubuntu': 'sudo apt-get install tesseract-ocr tesseract-ocr-tur komutunu çalıştırın',
+                            'centos': 'sudo yum install tesseract tesseract-langpack-tur komutunu çalıştırın'
+                        }
+                    }
+                }), 400
 
             # Initialize analyzer and analyze the AT Declaration
             analyzer = ATTypeInspectionAnalyzer()
@@ -72,6 +116,19 @@ def analyze_at_declaration():
 
             # Check if analysis was successful
             if "error" in report:
+                # Check if it's a Tesseract-related error
+                if "tesseract" in report.get('error', '').lower():
+                    return jsonify({
+                        'error': 'OCR Error',
+                        'message': 'Tesseract OCR kurulum sorunu. Lütfen sistem yöneticinize başvurun.',
+                        'details': {
+                            'original_error': report['error'],
+                            'tesseract_available': tesseract_available,
+                            'tesseract_info': tesseract_info,
+                            'solution': 'Tesseract OCR yazılımını kurun ve PATH değişkenine ekleyin'
+                        }
+                    }), 500
+                
                 return jsonify({
                     'error': 'Analysis failed',
                     'message': report['error']
@@ -84,6 +141,7 @@ def analyze_at_declaration():
                 'analysis_date': report['analysis_date'],
                 'file_info': {
                     'filename': filename,
+                    'file_format': report['file_info']['file_format'].upper(),
                     'text_length': report['file_info']['text_length'],
                     'detected_language': report['file_info']['detected_language'].upper()
                 },
@@ -121,6 +179,26 @@ def analyze_at_declaration():
             except:
                 pass
 
+            # Check if it's a Tesseract-related error
+            error_msg = str(e).lower()
+            if "tesseract" in error_msg:
+                logger.error(f"Tesseract OCR hatası: {str(e)}")
+                return jsonify({
+                    'error': 'OCR System Error',
+                    'message': 'Tesseract OCR sistemi bulunamadı veya çalışmıyor',
+                    'details': {
+                        'error': str(e),
+                        'tesseract_available': tesseract_available,
+                        'tesseract_info': tesseract_info,
+                        'installation_required': True,
+                        'help': {
+                            'windows': 'https://github.com/UB-Mannheim/tesseract/wiki',
+                            'macos': 'brew install tesseract',
+                            'linux': 'apt-get install tesseract-ocr tesseract-ocr-tur'
+                        }
+                    }
+                }), 500
+
             logger.error(f"AT Uygunluk Beyanı analiz hatası: {str(e)}")
             return jsonify({
                 'error': 'Analysis failed',
@@ -142,10 +220,15 @@ def health_check():
         'service': 'AT Declaration Analyzer API',
         'message': 'AT Uygunluk Beyanı analiz servisi çalışıyor',
         'version': '1.0',
-        'supported_formats': ['PDF'],
+        'supported_formats': ['PDF', 'JPG', 'JPEG', 'PNG'],
         'upload_folder': UPLOAD_FOLDER,
         'max_file_size': '16MB',
-        'directive': '2006/42/EC Machine Directive'
+        'directive': '2006/42/EC Machine Directive',
+        'system_status': {
+            'tesseract_available': tesseract_available,
+            'tesseract_info': tesseract_info,
+            'ocr_capability': 'Tam OCR desteği' if tesseract_available else 'OCR desteği yok - sadece PDF metin'
+        }
     }), 200
 
 @app.route('/api/at-info', methods=['GET'])
@@ -159,7 +242,7 @@ def api_info():
             'POST /api/at-declaration': {
                 'description': 'AT Uygunluk Beyanı belgesi analiz eder',
                 'parameters': {
-                    'file': 'Analiz edilecek AT Uygunluk Beyanı dosyası (PDF)'
+                    'file': 'Analiz edilecek AT Uygunluk Beyanı dosyası (PDF, JPG, JPEG, PNG)'
                 },
                 'response': 'Detaylı analiz raporu ve uygunluk değerlendirmesi'
             },
@@ -228,6 +311,8 @@ def api_info():
         ],
         'features': [
             'PyPDF2 ve OCR ile metin çıkarma',
+            'Resim dosyalarından OCR ile metin çıkarma (JPG, PNG)',
+            'PDF içindeki resimlerden OCR ile metin çıkarma',
             'Otomatik dil tespiti',
             'Regex tabanlı kritik bilgi çıkarma',
             'Çoklu üretici firma desteği',
@@ -285,7 +370,16 @@ def validate_declaration():
         if not allowed_file(file.filename):
             return jsonify({
                 'error': 'Invalid file type',
-                'message': 'Geçersiz dosya türü'
+                'message': 'Sadece PDF, JPG, JPEG ve PNG dosyaları kabul edilir'
+            }), 400
+
+        # Check OCR requirement for image files
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        if file_extension in ['.jpg', '.jpeg', '.png'] and not tesseract_available:
+            return jsonify({
+                'valid': False,
+                'error': 'OCR not available for image files',
+                'message': 'Resim dosyalarını analiz edebilmek için Tesseract OCR kurulumu gereklidir'
             }), 400
 
         # Temporary file processing
@@ -370,7 +464,13 @@ if __name__ == '__main__':
     
     logger.info("AT Uygunluk Beyanı Analiz API başlatılıyor...")
     logger.info(f"Upload klasörü: {UPLOAD_FOLDER}")
-    logger.info(f"Desteklenen format: PDF")
+    logger.info(f"Desteklenen formatlar: PDF, JPG, JPEG, PNG")
+    logger.info(f"Tesseract OCR durumu: {'Kurulu' if tesseract_available else 'Kurulu değil'}")
+    if tesseract_available:
+        logger.info(f"Tesseract bilgisi: {tesseract_info}")
+    else:
+        logger.warning(f"Tesseract OCR sorunu: {tesseract_info}")
+        logger.warning("Resim dosyaları analiz edilemeyecek!")
     logger.info(f"Direktif uyumluluğu: 2006/42/EC Machine Directive")
     logger.info("API endpoint'leri:")
     logger.info("  POST /api/at-declaration - AT Uygunluk Beyanı analizi")

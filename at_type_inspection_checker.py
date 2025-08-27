@@ -9,6 +9,7 @@ Based on 2006/42/EC Machine Directive requirements
 import PyPDF2
 import pytesseract
 from pdf2image import convert_from_path
+from PIL import Image
 import re
 import logging
 from dataclasses import dataclass
@@ -51,7 +52,7 @@ class ATTypeInspectionAnalyzer:
         self.criteria_details = {
             "Kritik Bilgiler": {
                 "uretici_adi": {
-                    "pattern": r"(?:biz\s+burada\s+beyan\s+ederiz\s+ki[;:\s]*([^,\n]+))|(?:üretici|manufacturer|imalatçı|company|şirket|firma|unvan|we|manufactured by|sibernetik|pilz|tarafımızdan)[\s:]*([A-Za-zÇŞİĞÜÖıçşığüö\s\.\-&]{8,100})",
+                    "pattern": r"(?:biz\s+burada\s+beyan\s+ederiz\s+ki[;:\s]*([^,\n]+))|(?:üretici|manufacturer|imalatçı|company|şirket|firma|unvan|we|manufactured by|sibernetik|pilz|tarafımızdan|üretici\s+firma)[\s:]*([A-Za-zÇŞİĞÜÖıçşığüö\s\.\-&]{8,100})|(?:karaca\s+mekatronik)",
                     "weight": 15,
                     "critical": True,
                     "description": "Üretici veya yetkili temsilcinin adı"
@@ -75,7 +76,7 @@ class ATTypeInspectionAnalyzer:
                     "description": "2006/42/EC Direktif atfı"
                 },
                 "yetkili_imza": {
-                    "pattern": r"(?:yetkili\s+imza|authorized|authorised|imza|signature|beyan yetkilisi|responsible|müdür|manager|director|managing director|şahiner|mcauliffe|genel müdür)",
+                    "pattern": r"(?:yetkili\s+imza|authorized|authorised|imza|signature|beyan yetkilisi|responsible|müdür|manager|director|managing director|şahiner|mcauliffe|genel müdür|beyan eden|sorumlu|name|adı|surname|soyadı|ünvan|position|title|başkan|president|chief|şef|general\s+manager|general\s+maneger|karaca|eşref)",
                     "weight": 5,
                     "critical": True,
                     "description": "Yetkili kişi imzası ve unvanı"
@@ -173,6 +174,39 @@ class ATTypeInspectionAnalyzer:
             raise
         
         return text
+    
+    def extract_text_from_image(self, image_path: str) -> str:
+        """Extract text from image files (JPG, PNG) using OCR"""
+        text = ""
+        
+        try:
+            # Open image with PIL
+            image = Image.open(image_path)
+            
+            # Convert to RGB if necessary (for PNG with transparency)
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
+            
+            # Apply OCR
+            text = pytesseract.image_to_string(image, lang='tur+eng')
+            logging.info(f"OCR extracted {len(text)} characters from image: {os.path.basename(image_path)}")
+            
+        except Exception as e:
+            logging.error(f"Error extracting text from image: {e}")
+            raise
+        
+        return text
+    
+    def extract_text_from_file(self, file_path: str) -> str:
+        """Extract text from supported file formats (PDF, JPG, PNG)"""
+        file_extension = os.path.splitext(file_path)[1].lower()
+        
+        if file_extension == '.pdf':
+            return self.extract_text_from_pdf(file_path)
+        elif file_extension in ['.jpg', '.jpeg', '.png']:
+            return self.extract_text_from_image(file_path)
+        else:
+            raise ValueError(f"Desteklenmeyen dosya formatı: {file_extension}. Desteklenen formatlar: PDF, JPG, PNG")
     
     def detect_language(self, text: str) -> str:
         """Detect document language"""
@@ -485,18 +519,38 @@ class ATTypeInspectionAnalyzer:
         
         return recommendations
     
-    def analyze_at_declaration(self, pdf_path: str) -> Dict[str, Any]:
-        """Main analysis function for AT Uygunluk Beyanı"""
+    def analyze_at_declaration(self, file_path: str) -> Dict[str, Any]:
+        """Main analysis function for AT Uygunluk Beyanı - supports PDF, JPG, PNG"""
         logging.info("AT Declaration analysis starting...")
         
         try:
-            # Extract text
-            text = self.extract_text_from_pdf(pdf_path)
+            # Check if file exists
+            if not os.path.exists(file_path):
+                return {
+                    "error": f"Dosya bulunamadı: {file_path}",
+                    "analysis_date": datetime.now().isoformat()
+                }
+            
+            # Check file format
+            file_extension = os.path.splitext(file_path)[1].lower()
+            if file_extension not in ['.pdf', '.jpg', '.jpeg', '.png']:
+                return {
+                    "error": f"Desteklenmeyen dosya formatı: {file_extension}. Desteklenen formatlar: PDF, JPG, PNG",
+                    "analysis_date": datetime.now().isoformat()
+                }
+            
+            # Extract text based on file type
+            text = self.extract_text_from_file(file_path)
+            
+            # Debug: Print extracted text for analysis
+            logging.info(f"Extracted text preview (first 500 chars): {text[:500]}")
+            logging.info(f"Extracted text preview (last 500 chars): {text[-500:]}")
             
             if len(text.strip()) < 50:
                 return {
-                    "error": "PDF'den yeterli metin çıkarılamadı. Dosya bozuk olabilir veya sadece resim içeriyor olabilir.",
-                    "text_length": len(text)
+                    "error": f"Dosyadan yeterli metin çıkarılamadı. Dosya bozuk olabilir veya metin içermiyor olabilir. (Format: {file_extension})",
+                    "text_length": len(text),
+                    "analysis_date": datetime.now().isoformat()
                 }
             
             # Detect language
@@ -537,7 +591,8 @@ class ATTypeInspectionAnalyzer:
             return {
                 "analysis_date": datetime.now().isoformat(),
                 "file_info": {
-                    "filename": os.path.basename(pdf_path),
+                    "filename": os.path.basename(file_path),
+                    "file_format": file_extension,
                     "text_length": len(text),
                     "detected_language": detected_language
                 },
@@ -572,7 +627,8 @@ def print_analysis_report(report: Dict[str, Any]):
     print("=" * 60)
     
     print(f"📅 Analiz Tarihi: {report['analysis_date']}")
-    print(f"🔍 Tespit Edilen Dil: {report['file_info']['detected_language'].upper()}")
+    print(f"� Dosya Formatı: {report['file_info']['file_format'].upper()}")
+    print(f"�🔍 Tespit Edilen Dil: {report['file_info']['detected_language'].upper()}")
     
     print(f"📋 Toplam Puan: {report['summary']['total_score']}/100")
     print(f"📈 Yüzde: %{report['summary']['percentage']:.0f}")
@@ -650,15 +706,21 @@ def main():
     """Main function for command line usage"""
     import sys
     
-    # Analiz edilecek PDF dosyaları - öncelik sırasına göre
+    # Analiz edilecek dosyalar - öncelik sırasına göre (PDF, JPG, PNG destekleniyor)
     test_files = [
-        "2208007____FORD Eskisehir_12.7lt Ecotorq Kafa Baga Cakma CE-Declaration.pdf"
+        "WhatsApp Image 2025-08-27 at 13.22.26.jpeg"
     ]
     
-    # Diğer CE Declaration dosyalarını da ara
+    # Diğer CE Declaration dosyalarını ara (PDF, JPG, PNG)
     import glob
-    ce_files = glob.glob("*CE*.pdf") + glob.glob("*ce*.pdf") + glob.glob("*Declaration*.pdf") + glob.glob("*BEYANI*.pdf")
-    test_files.extend(ce_files)
+    supported_extensions = ['*.pdf', '*.PDF', '*.jpg', '*.JPG', '*.jpeg', '*.JPEG', '*.png', '*.PNG']
+    
+    for ext in supported_extensions:
+        # CE Declaration pattern files
+        ce_files = (glob.glob(f"*CE*{ext}") + glob.glob(f"*ce*{ext}") + 
+                   glob.glob(f"*Declaration*{ext}") + glob.glob(f"*BEYANI*{ext}") +
+                   glob.glob(f"*declaration*{ext}") + glob.glob(f"*beyani*{ext}"))
+        test_files.extend(ce_files)
     
     # Hangi dosya varsa onu kullan
     selected_file = None
@@ -669,13 +731,23 @@ def main():
     
     if selected_file:
         print(f"🔍 Analiz edilen dosya: {selected_file}")
+        print(f"📄 Dosya formatı: {os.path.splitext(selected_file)[1].upper()}")
+        print(f"📅 Analiz Tarihi: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        if os.path.splitext(selected_file)[1].lower() in ['.jpg', '.jpeg', '.png']:
+            print("🖼️ Resim dosyası tespit edildi, OCR ile metin çıkarılacak...")
+        elif os.path.splitext(selected_file)[1].lower() == '.pdf':
+            print("📋 PDF dosyası tespit edildi, metin çıkarma ve OCR kullanılacak...")
     else:
         print("❌ Hiçbir AT Uygunluk Beyanı dosyası bulunamadı")
         print("📁 Lütfen CE Declaration/AT Uygunluk Beyanı dosyasının proje klasöründe olduğundan emin olun.")
         print("🔍 Desteklenen dosya formatları:")
-        print("   • *CE*.pdf, *ce*.pdf")
-        print("   • *Declaration*.pdf")
-        print("   • *BEYANI*.pdf")
+        print("   • PDF: *.pdf")
+        print("   • Resim: *.jpg, *.jpeg, *.png")
+        print("📋 Aranacak dosya adı kalıpları:")
+        print("   • *CE*.{pdf,jpg,png}")
+        print("   • *Declaration*.{pdf,jpg,png}")
+        print("   • *BEYANI*.{pdf,jpg,png}")
         sys.exit(1)
     
     analyzer = ATTypeInspectionAnalyzer()
