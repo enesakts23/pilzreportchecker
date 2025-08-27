@@ -90,47 +90,41 @@ class GroundingContinuityReportAnalyzer:
         
         self.criteria_details = {
             "Genel Rapor Bilgileri": {
-                "proje_adi_numarasi": {"pattern": r"(?:Proje\s*Ad[ıi]\s*(?:ve\s*)?(?:No|Numaras[ıi])\s*[:=]\s*|C\d{2}\.\d{3})", "weight": 3},
-                "olcum_tarihi": {"pattern": r"(?:Ölçüm\s*Tarihi\s*[:=]\s*)?(\d{1,2}[./]\d{1,2}[./]\d{4})", "weight": 3},
-                "rapor_tarihi": {"pattern": r"(?:Rapor\s*Tarihi\s*[:=]\s*)?(\d{1,2}[./]\d{1,2}[./]\d{4})", "weight": 3},
-                "tesis_bolge_hat": {"pattern": r"(?:Tesis|Bölge|Hat|Makine)\s*(?:Ad[ıi]|Bilgi[si])\s*[:=]\s*([^\n\r]+)", "weight": 2},
-                "rapor_numarasi": {"pattern": r"(?:Rapor\s*(?:No|Numaras[ıi])\s*[:=]\s*|SM\s*\d+)", "weight": 2},
-                "revizyon": {"pattern": r"(?:Revizyon|Rev\.?|v)\s*[:=]?\s*(\d+|[A-Z])", "weight": 1},
-                "firma_personel": {"pattern": r"(?:Ölçümü\s*Yapan|Firma|Personel|Hazırlayan)\s*[:=]\s*([^\n\r]+)", "weight": 1}
+                "proje_adi_numarasi": {"pattern": r"(?:Project\s*(?:Name|No)|Proje\s*(?:Ad[ıi]|No)|Report\s*Title|Document\s*Title|E\d{2}\.\d{3}|C\d{2}\.\d{3}|T\d{2,3}[-.]?\d{3,4})", "weight": 3},
+                "olcum_tarihi": {"pattern": r"(?:Measurement\s*Date|Ölçüm\s*Tarihi|Test\s*Date|Date\s*of\s*(?:Test|Measurement)|Measured\s*on|Tested\s*on|\d{1,2}[./\-]\d{1,2}[./\-]\d{4})", "weight": 3},
+                "rapor_tarihi": {"pattern": r"(?:Report\s*Date|Rapor\s*Tarihi|Issue\s*Date|Document\s*Date|Prepared\s*on|Created\s*on|Date|Tarih|\d{1,2}[./\-]\d{1,2}[./\-]\d{4})", "weight": 3},
+                "tesis_bolge_hat": {"pattern": r"(?:Customer|Müşteri|Client|Facility|Tesis|Plant|Factory|Company|Firma|Toyota|DANONE|Ford|BOSCH)", "weight": 2},
+                "rapor_numarasi": {"pattern": r"(?:Report\s*No|Rapor\s*No|Document\s*No|Belge\s*No|E\d{2}\.\d{3}|C\d{2}\.\d{3}|SM\s*\d+|MCC\d+)", "weight": 2},
+                "revizyon": {"pattern": r"(?:Version|Revizyon|Rev\.?|v)\s*[:=]?\s*(\d+|[A-Z])", "weight": 1},
+                "firma_personel": {"pattern": r"(?:Prepared\s*by|Hazırlayan|Performed\s*by|Ölçümü\s*Yapan|Consultant|Engineer|PILZ)", "weight": 1}
             },
             "Ölçüm Metodu ve Standart Referansları": {
-                "olcum_cihazi": {"pattern": r"(?:Ölçüm\s*Cihaz[ıi]|Cihaz\s*Marka|Model)\s*[:=]\s*([^\n\r]+)", "weight": 4},
-                "kalibrasyon": {"pattern": r"(?:Kalibrasyon|Kalibre|Kalibrasyon\s*Tarihi)\s*[:=]?\s*([^\n\r]+)", "weight": 3},
-                "olcum_yontemi": {"pattern": r"(EN\s*60204[-\s]*1?\s*TABLO[-\s]*10)", "weight": 4},
-                "standartlar": {"pattern": r"(EN\s*60204[-\s]*1?|IEC\s*60364)", "weight": 4}
+                "olcum_cihazi": {"pattern": r"(?:Measuring\s*Instrument|Ölçüm\s*Cihaz[ıi]|Test\s*Equipment|Multimeter|Multimetre|Ohmmeter|Instrument|Equipment|Device|Tester|Fluke|Metrix|Chauvin|Megger|Hioki)", "weight": 6},
+                "kalibrasyon": {"pattern": r"(?:Calibration|Kalibrasyon|Kalibre|Certificate|Sertifika|Cal\s*Date)", "weight": 4},
+                "standartlar": {"pattern": r"(?:EN\s*60204[-\s]*1?|IEC\s*60364|Standard|Standart)", "weight": 5}
             },
             "Ölçüm Sonuç Tablosu": {
                 "sira_numarasi": {"pattern": r"(?:S[ıi]ra\s*(?:No|Numaras[ıi])|^\s*\d+\s)", "weight": 3},
-                "makine_hat_bolge": {"pattern": r"(8X45|8X50|8X9J|9J73)\s*(?:R[1-3])?\s*Hatt[ıi]", "weight": 3},
-                "olcum_noktasi": {"pattern": r"(?:Robot\s*\d+\.\s*Eksen\s*Motoru|Kalemtraş|Lift\s*and\s*Shift)", "weight": 3},
-                "rlo_degeri": {"pattern": r"(\d+)\s*(?:4x[2-9](?:[.,]\d+)?|4x4)\s*(?:[2-9](?:[.,]\d+)?|4)\s*500", "weight": 5},
-                "yuk_iletken_kesiti": {"pattern": r"(4x4|4x2[.,]5)", "weight": 3},
-                "pe_iletken_kesiti": {"pattern": r"4x4\s*(4)|4x2[.,]5\s*(2[.,]5|4)", "weight": 3},
-                "referans_degeri": {"pattern": r"(500)\s*(?:\d+\s*)?mΩ\s*<\s*500\s*mΩ", "weight": 3},
-                "uygunluk_durumu": {"pattern": r"(UYGUN)(?:UYGUN)?", "weight": 4},
-                "kesit_uygunlugu": {"pattern": r"UYGUN(?:UYGUN)?", "weight": 2}
+                "makine_hat_bolge": {"pattern": r"(?:8X45|8X50|8X9J|9J73|8X52|8X60|8X62|8X70)\s*(?:R[1-9])?\s*(?:Hatt[ıi]|Line|Zone|Bölge)", "weight": 3},
+                "olcum_noktasi": {"pattern": r"(?:Robot\s*\d+\.\s*Eksen\s*Motoru|Kalemtraş|Lift\s*and\s*Shift|Motor|Ekipman|Equipment|Device)", "weight": 3},
+                "rlo_degeri": {"pattern": r"(\d+[.,]?\d*)\s*(?:mΩ|mohm|ohm|Ω)", "weight": 5},
+                "yuk_iletken_kesiti": {"pattern": r"(?:4x4|4x2[.,]5|4x6|4x10|Yük\s*İletken|Load\s*Conductor|PE\s*İletken|PE\s*Conductor)", "weight": 4},
+                "referans_degeri": {"pattern": r"(?:500\s*mΩ|500\s*ohm|500\s*Ω|EN\s*60204|IEC\s*60364)", "weight": 3},
+                "uygunluk_durumu": {"pattern": r"(?:UYGUN|OK|PASS|Compliant|Uygun)", "weight": 4},
+                "kesit_uygunlugu": {"pattern": r"(?:UYGUN|OK|PASS|Compliant|Uygun)", "weight": 3}
             },
             "Uygunluk Değerlendirmesi": {
                 "toplam_olcum_nokta": {"pattern": r"(?:222|220|200|Toplam.*\d+)", "weight": 5},
                 "uygun_nokta_sayisi": {"pattern": r"(?:211|210|UYGUN)", "weight": 5},
-                "uygunsuz_isaretleme": {"pattern": r"\*D\.Y", "weight": 5},
+                "uygunsuz_isaretleme": {"pattern": r"\*D\.Y", "weight": 5, "reverse_logic": True},  # Uygunsuzluk bulunmazsa tam puan
                 "standart_referans_uygunluk": {"pattern": r"(?:500\s*mΩ|EN\s*60204)", "weight": 5}
             },
             "Görsel ve Teknik Dökümantasyon": {
-                "alan_fotograflari": {"pattern": r"(?:Fotoğraf|Görsel|Resim|Alan.*Fotoğraf)", "weight": 4},
-                "cihaz_baglanti_fotografi": {"pattern": r"(?:Cihaz.*Fotoğraf|Bağlant[ıi].*Fotoğraf|Ölçüm.*Cihaz)", "weight": 3},
-                "kroki_sema": {"pattern": r"(?:Kroki|Şema|Çizim|Diyagram)", "weight": 3}
+                "cihaz_baglanti_fotografi": {"pattern": r"(?:Cihaz.*Fotoğraf|Bağlant[ıi].*Fotoğraf|Ölçüm.*Cihaz|Photo|Image|Figure|Resim|Görsel)", "weight": 10}
             },
             "Sonuç ve Öneriler": {
-                "genel_uygunluk": {"pattern": r"(?:Genel\s*Uygunluk|Sonuç|UYGUN|UYGUNSUZ)", "weight": 4},
-                "standart_atif": {"pattern": r"(?:EN\s*60204|IEC\s*60364|Standart.*Atıf|Standart.*Referans)", "weight": 3},
-                "iyilestirme_onerileri": {"pattern": r"(?:İyileştirme\s*Önerisi|Geliştime|Öneri|Tavsiye)", "weight": 4},
-                "tekrar_olcum_periyodu": {"pattern": r"(?:Tekrar\s*Ölçüm|Periyodik\s*Ölçüm|Ölçüm\s*Periyodu)", "weight": 4}
+                "genel_uygunluk": {"pattern": r"(?:Genel\s*Uygunluk|Sonuç|UYGUN|UYGUNSUZ|Result|Conclusion|Compliant|Non-compliant)", "weight": 8},
+                "standart_atif": {"pattern": r"(?:EN\s*60204|IEC\s*60364|Standart.*Atıf|Standart.*Referans|Standard.*Reference)", "weight": 7}
             }
         }
     
@@ -344,21 +338,104 @@ class GroundingContinuityReportAnalyzer:
         else:
             return original_text, detected_lang
     
+    def normalize_date_string(self, date_str: str) -> str:
+        """Tarih string'ini DD/MM/YYYY formatına çevir"""
+        if not date_str or date_str == "Bulunamadı":
+            return date_str
+            
+        # Ay isimleri çeviri tablosu
+        month_names = {
+            # İngilizce ay isimleri
+            'jan': '01', 'january': '01',
+            'feb': '02', 'february': '02', 
+            'mar': '03', 'march': '03',
+            'apr': '04', 'april': '04',
+            'may': '05',
+            'jun': '06', 'june': '06',
+            'jul': '07', 'july': '07',
+            'aug': '08', 'august': '08',
+            'sep': '09', 'september': '09',
+            'oct': '10', 'october': '10',
+            'nov': '11', 'november': '11',
+            'dec': '12', 'december': '12',
+            
+            # Türkçe ay isimleri
+            'ocak': '01',
+            'şubat': '02', 'subat': '02',
+            'mart': '03',
+            'nisan': '04',
+            'mayıs': '05', 'mayis': '05',
+            'haziran': '06',
+            'temmuz': '07',
+            'ağustos': '08', 'agustos': '08',
+            'eylül': '09', 'eylul': '09',
+            'ekim': '10',
+            'kasım': '11', 'kasim': '11',
+            'aralık': '12', 'aralik': '12'
+        }
+        
+        # Çeşitli tarih formatlarını normalize et
+        date_str = date_str.strip()
+        
+        # DD/MM/YYYY veya DD.MM.YYYY veya DD-MM-YYYY formatları
+        if re.match(r'\d{1,2}[./\-]\d{1,2}[./\-]\d{4}', date_str):
+            return date_str.replace('.', '/').replace('-', '/')
+        
+        # YYYY/MM/DD formatı
+        if re.match(r'\d{4}[./\-]\d{1,2}[./\-]\d{1,2}', date_str):
+            parts = re.split(r'[./\-]', date_str)
+            return f"{parts[2].zfill(2)}/{parts[1].zfill(2)}/{parts[0]}"
+        
+        # DD Month YYYY formatı (örn: "18 Apr 2023" veya "18 Nisan 2023")
+        month_pattern = r'(\d{1,2})\s+([a-zA-ZğıüşçöĞIÜŞÇÖ]+)\s+(\d{4})'
+        match = re.match(month_pattern, date_str, re.IGNORECASE)
+        if match:
+            day, month_name, year = match.groups()
+            month_name_lower = month_name.lower()
+            if month_name_lower in month_names:
+                month_num = month_names[month_name_lower]
+                return f"{day.zfill(2)}/{month_num}/{year}"
+        
+        # Eğer hiçbir format eşleşmezse orijinal string'i döndür
+        return date_str.replace('.', '/').replace('-', '/')
+    
     def check_date_validity(self, text: str, file_path: str = None) -> Tuple[bool, str, str, str]:
         """1 yıl kuralı - Ölçüm tarihi ile rapor tarihi arasındaki fark kontrolü"""
         
-        # Ölçüm tarihi arama
+        # Ölçüm tarihi arama - çok kapsamlı pattern'lar
         olcum_patterns = [
-            r"Ölçüm\s*Tarihi\s*[:=]\s*(\d{1,2}[./]\d{1,2}[./]\d{4})",
-            r"Ölçüm.*?(\d{1,2}[./]\d{1,2}[./]\d{4})",
-            r"(\d{1,2}[./]\d{1,2}[./]\d{4}).*?ölçüm"
+            # Türkçe formatlar
+            r"(?:Ölçüm\s*Tarihi|Test\s*Tarihi|Ölçüm\s*Yapıldığı\s*Tarih)\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+            r"(?:Ölçüm|Test).*?(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+            r"(\d{1,2}[./\-]\d{1,2}[./\-]\d{4}).*?(?:ölçüm|test)",
+            
+            # İngilizce formatlar
+            r"(?:Measurement\s*Date|Test\s*Date|Date\s*of\s*(?:Test|Measurement))\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+            r"(?:Measured\s*on|Tested\s*on)\s*[:=]?\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+            r"(\d{1,2}[./\-]\d{1,2}[./\-]\d{4}).*?(?:measurement|test)",
+            
+            # Genel formatlar
+            r"(\d{4}[./\-]\d{1,2}[./\-]\d{1,2})",  # YYYY/MM/DD
+            r"(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4})",
+            r"(\d{1,2}\s+(?:Ocak|Şubat|Mart|Nisan|Mayıs|Haziran|Temmuz|Ağustos|Eylül|Ekim|Kasım|Aralık)\s+\d{4})"
         ]
         
-        # Rapor tarihi arama
+        # Rapor tarihi arama - çok kapsamlı pattern'lar
         rapor_patterns = [
-            r"Rapor\s*Tarihi\s*[:=]\s*(\d{1,2}[./]\d{1,2}[./]\d{4})",
-            r"Rapor.*?(\d{1,2}[./]\d{1,2}[./]\d{4})",
-            r"Tarih\s*[:=]\s*(\d{1,2}[./]\d{1,2}[./]\d{4})"
+            # Türkçe formatlar
+            r"(?:Rapor\s*Tarihi|Belge\s*Tarihi|Hazırlanma\s*Tarihi)\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+            r"(?:Rapor|Belge).*?(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+            r"(?:Hazırlayan|Hazırlandı)\s*[:=]?\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+            
+            # İngilizce formatlar
+            r"(?:Report\s*Date|Document\s*Date|Issue\s*Date|Prepared\s*Date)\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+            r"(?:Prepared\s*on|Issued\s*on|Created\s*on)\s*[:=]?\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+            
+            # Genel formatlar
+            r"(?:Date|Tarih)\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+            r"(\d{4}[./\-]\d{1,2}[./\-]\d{1,2})",  # YYYY/MM/DD
+            r"(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4})",
+            r"(\d{1,2}\s+(?:Ocak|Şubat|Mart|Nisan|Mayıs|Haziran|Temmuz|Ağustos|Eylül|Ekim|Kasım|Aralık)\s+\d{4})"
         ]
         
         olcum_tarihi = None
@@ -387,9 +464,9 @@ class GroundingContinuityReportAnalyzer:
         
         try:
             if olcum_tarihi:
-                # Tarih formatlarını normalize et
-                olcum_tarihi_clean = olcum_tarihi.replace('.', '/').replace('-', '/')
-                rapor_tarihi_clean = rapor_tarihi.replace('.', '/').replace('-', '/')
+                # Tarih formatlarını normalize et ve ay isimlerini çevir
+                olcum_tarihi_clean = self.normalize_date_string(olcum_tarihi)
+                rapor_tarihi_clean = self.normalize_date_string(rapor_tarihi)
                 
                 olcum_date = datetime.strptime(olcum_tarihi_clean, '%d/%m/%Y')
                 rapor_date = datetime.strptime(rapor_tarihi_clean, '%d/%m/%Y')
@@ -422,42 +499,55 @@ class GroundingContinuityReportAnalyzer:
         for criterion_name, criterion_data in criteria.items():
             pattern = criterion_data["pattern"]
             weight = criterion_data["weight"]
+            reverse_logic = criterion_data.get("reverse_logic", False)
             
             matches = re.findall(pattern, text, re.IGNORECASE | re.MULTILINE)
             
             if matches:
-                content = str(matches[0]) if len(matches) == 1 else str(matches)
-                found = True
-                score = weight
+                if reverse_logic:
+                    # Uygunsuzluk bulundu - düşük puan
+                    content = f"Uygunsuzluk tespit edildi: {str(matches[:3])}"
+                    found = True
+                    score = weight // 3  # Düşük puan
+                else:
+                    content = str(matches[0]) if len(matches) == 1 else str(matches)
+                    found = True
+                    score = weight
             else:
-                # İkincil arama - daha genel pattern
-                general_patterns = {
-                    "proje_adi_numarasi": r"(C\d+\.\d+|Proje|Project|SM\s*\d+)",
-                    "tesis_bolge_hat": r"(Tesis|Makine|Hat|Bölge|Line)",
-                    "olcum_cihazi": r"(Multimetre|Ohmmetre|Ölçüm|Cihaz)",
-                    "kalibrasyon": r"(Kalibrasyon|Kalibre|Cert|Sertifika)",
-                    "standartlar": r"(EN\s*60204|IEC\s*60364|Standard|Standart)",
-                    "rlo_degeri": r"(\d+[.,]?\d*\s*(?:mΩ|mohm|ohm))",
-                    "uygunluk_durumu": r"(UYGUN|OK|NOK|Uygun|Değil)",
-                    "risk_belirtme": r"(Risk|Tehlike|Uygunsuz|Problem)",
-                    "genel_uygunluk": r"(Sonuç|Result|Uygun|Geçer|Pass|Fail)"
-                }
-                
-                general_pattern = general_patterns.get(criterion_name)
-                if general_pattern:
-                    general_matches = re.findall(general_pattern, text, re.IGNORECASE)
-                    if general_matches:
-                        content = f"Genel eşleşme bulundu: {general_matches[0]}"
-                        found = True
-                        score = weight // 2  # Kısmi puan
+                if reverse_logic:
+                    # Uygunsuzluk bulunamadı - tam puan (iyi bir şey)
+                    content = "Uygunsuzluk bulunamadı - Tüm ölçümler uygun"
+                    found = True
+                    score = weight  # Tam puan
+                else:
+                    # İkincil arama - daha genel pattern
+                    general_patterns = {
+                        "proje_adi_numarasi": r"(C\d+\.\d+|Proje|Project|SM\s*\d+)",
+                        "tesis_bolge_hat": r"(Tesis|Makine|Hat|Bölge|Line)",
+                        "olcum_cihazi": r"(Multimetre|Ohmmetre|Ölçüm|Cihaz)",
+                        "kalibrasyon": r"(Kalibrasyon|Kalibre|Cert|Sertifika)",
+                        "standartlar": r"(EN\s*60204|IEC\s*60364|Standard|Standart)",
+                        "rlo_degeri": r"(\d+[.,]?\d*\s*(?:mΩ|mohm|ohm))",
+                        "uygunluk_durumu": r"(UYGUN|OK|NOK|Uygun|Değil)",
+                        "risk_belirtme": r"(Risk|Tehlike|Uygunsuz|Problem)",
+                        "genel_uygunluk": r"(Sonuç|Result|Uygun|Geçer|Pass|Fail)"
+                    }
+                    
+                    general_pattern = general_patterns.get(criterion_name)
+                    if general_pattern:
+                        general_matches = re.findall(general_pattern, text, re.IGNORECASE)
+                        if general_matches:
+                            content = f"Genel eşleşme bulundu: {general_matches[0]}"
+                            found = True
+                            score = weight // 2  # Kısmi puan
+                        else:
+                            content = "Bulunamadı"
+                            found = False
+                            score = 0
                     else:
                         content = "Bulunamadı"
                         found = False
                         score = 0
-                else:
-                    content = "Bulunamadı"
-                    found = False
-                    score = 0
             
             results[criterion_name] = GroundingAnalysisResult(
                 criteria_name=criterion_name,
@@ -477,38 +567,198 @@ class GroundingContinuityReportAnalyzer:
         # Önce dosya adından bilgileri çıkar
         if file_path:
             filename = os.path.basename(file_path)
-            # C20.140 SM 20092 Topraklama Süreklilik Ölçüm ve Uygunluk Raporu v0.pdf
-            proje_match = re.search(r'(C\d{2}\.\d{3})', filename)
-            rapor_match = re.search(r'SM\s*(\d+)', filename)
-            revizyon_match = re.search(r'v(\d+)', filename)
             
-            values["proje_no"] = proje_match.group(1) if proje_match else "Bulunamadı"
-            values["rapor_numarasi"] = f"SM {rapor_match.group(1)}" if rapor_match else "Bulunamadı"
-            values["revizyon"] = f"v{revizyon_match.group(1)}" if revizyon_match else "Bulunamadı"
+            # Proje numarası pattern'leri - farklı formatlar için
+            proje_patterns = [
+                r'(C\d{2}\.\d{3})',  # C20.140 formatı
+                r'(E\d{2}\.\d{3})',  # E21.207 formatı
+                r'(T\d{2,3}[-\.]?\d{3,4})',  # T21-MCC1201 formatı
+                r'(\d{4,6})',        # 20092 gibi sayı formatı
+                r'([A-Z]\d{2,3}[.-]\d{3,4})'  # Genel format
+            ]
+            
+            # Rapor numarası pattern'leri
+            rapor_patterns = [
+                r'SM\s*(\d+)',
+                r'MCC(\d+)',
+                r'Report\s*No[\s:]*([A-Z0-9.-]+)',
+                r'Rapor[\s:]*([A-Z0-9.-]+)'
+            ]
+            
+            # Müşteri/firma bilgisi
+            musteri_patterns = [
+                r'Toyota',
+                r'DANONE',
+                r'Ford',
+                r'BOSCH',
+                r'P&G'
+            ]
+            
+            # Dosya adından proje no çıkar
+            proje_no = "Bulunamadı"
+            for pattern in proje_patterns:
+                match = re.search(pattern, filename, re.IGNORECASE)
+                if match:
+                    proje_no = match.group(1)
+                    break
+            values["proje_no"] = proje_no
+            
+            # Dosya adından rapor numarası çıkar
+            rapor_no = "Bulunamadı"
+            for pattern in rapor_patterns:
+                match = re.search(pattern, filename, re.IGNORECASE)
+                if match:
+                    rapor_no = match.group(1)
+                    break
+            values["rapor_numarasi"] = rapor_no
+            
+            # Müşteri bilgisi
+            musteri = "Bulunamadı"
+            for pattern in musteri_patterns:
+                if re.search(pattern, filename, re.IGNORECASE):
+                    musteri = pattern
+                    break
+            values["musteri"] = musteri
+            
+            # Revizyon bilgisi
+            revizyon_match = re.search(r'[vV](\d+)', filename)
+            values["revizyon"] = f"v{revizyon_match.group(1)}" if revizyon_match else "v0"
         
-        # Önemli değerler için pattern'ler
+        # Önemli değerler için pattern'ler - çok daha kapsamlı
         value_patterns = {
-            "olcum_tarihi": r"(?:Ölçüm\s*Tarihi\s*[:=]\s*)?(\d{1,2}[./]\d{1,2}[./]\d{4})",
-            "rapor_tarihi": r"(?:Rapor\s*Tarihi\s*[:=]\s*)?(\d{1,2}[./]\d{1,2}[./]\d{4})",
-            "tesis_adi": r"(?:8X45|8X50|8X9J|9J73)\s*(?:R1|R2|R3)?\s*Hatt[ıi]",
-            "olcum_cihazi": r"(?:Ölçüm\s*Cihaz[ıi]\s*[:=]\s*)([^\n\r]+)",
-            "olcum_yontemi": r"(EN\s*60204-1?\s*TABLO[-\s]*10)",
-            "standart_en60204": r"(EN\s*60204[-\s]*1?)",
-            "standart_iec60364": r"(IEC\s*60364)",
-            "firma_personel": r"(?:Hazırlayan|Ölçümü\s*Yapan)\s*[:=]\s*([^\n\r]+)",
+            # Proje adı/numarası için kapsamlı pattern'ler
+            "proje_adi": [
+                r"(?:Project\s*Name|Proje\s*Ad[ıi])\s*[:=]\s*([^\n\r]+)",
+                r"(?:Project\s*No|Proje\s*No|Project\s*Number)\s*[:=]\s*([A-Z0-9.-]+)",
+                r"(?:Report\s*Title|Rapor\s*Başl[ıi]ğ[ıi])\s*[:=]\s*([^\n\r]+)",
+                r"(?:Document\s*Title|Belge\s*Başl[ıi]ğ[ıi])\s*[:=]\s*([^\n\r]+)",
+                r"(LVD\s+[Öö]lç[üu]m[^,\n]*)",
+                r"(Topraklama\s+S[üu]reklilik[^,\n]*)",
+                r"(Grounding\s+Continuity[^,\n]*)",
+                r"([A-Z][a-z]+\s*-\s*[A-Z][a-z]+.*?[Öö]lç[üu]m)",
+                r"(E\d{2}\.\d{3}\s*-[^,\n]+)"
+            ],
+            
+            # Rapor numarası için kapsamlı pattern'ler
+            "rapor_numarasi": [
+                r"(?:Report\s*No|Rapor\s*No|Report\s*Number)\s*[:=]\s*([A-Z0-9.-]+)",
+                r"(?:Document\s*No|Belge\s*No)\s*[:=]\s*([A-Z0-9.-]+)",
+                r"(E\d{2}\.\d{3})",
+                r"(C\d{2}\.\d{3})",
+                r"(T\d{2,3}[-.]?\d{3,4})",
+                r"SM\s*(\d+)",
+                r"MCC(\d+)",
+                r"^\s*([A-Z]\d{2,3}[.-]\d{3,4})"
+            ],
+            
+            # Ölçüm cihazı için çok kapsamlı pattern'ler
+            "olcum_cihazi": [
+                r"(?:Measuring\s*Instrument|Ölçüm\s*Cihaz[ıi]|Test\s*Equipment)\s*[:=]\s*([^\n\r]+)",
+                r"(?:Multimeter|Multimetre|Ohmmeter|Ohmmetre)\s*[:=]?\s*([A-Z0-9\s.-]+)",
+                r"(?:Instrument|Cihaz)\s*[:=]\s*([^\n\r]+)",
+                r"(?:Equipment|Ekipman)\s*[:=]\s*([^\n\r]+)",
+                r"(?:Device|Alet)\s*[:=]\s*([^\n\r]+)",
+                r"(?:Tester|Test\s*Cihaz[ıi])\s*[:=]?\s*([A-Z0-9\s.-]+)",
+                r"(Fluke\s*\d+[A-Z]*)",
+                r"(Metrix\s*[A-Z0-9]+)",
+                r"(Chauvin\s*Arnoux\s*[A-Z0-9]+)",
+                r"(Megger\s*[A-Z0-9]+)",
+                r"(Hioki\s*[A-Z0-9]+)",
+                r"([A-Z][a-z]+\s*\d+[A-Z]*)",  # Genel marka model formatı
+                r"(MΩ\s*metre|mΩ\s*metre|Loop\s*Tester|Continuity\s*Tester)"
+            ],
+            
+            # Tesis/müşteri bilgisi
+            "tesis_adi": [
+                r"(?:Customer|Müşteri|Client)\s*[:=]\s*([^\n\r]+)",
+                r"(?:Facility|Tesis|Plant|Factory)\s*[:=]\s*([^\n\r]+)",
+                r"(?:Company|Firma|Corporation)\s*[:=]\s*([^\n\r]+)",
+                r"(Toyota[^\n\r]*)",
+                r"(DANONE[^\n\r]*)",
+                r"(Ford[^\n\r]*)",
+                r"(BOSCH[^\n\r]*)",
+                r"(?:8X45|8X50|8X9J|9J73)\s*(?:R1|R2|R3)?\s*Hatt[ıi]",
+                r"([A-Z][a-z]+\s+[A-Z][a-z]+\s+(?:Factory|Plant|Facility))"
+            ],
+            
+
+            
+            # Firma/personel bilgisi
+            "firma_personel": [
+                r"(?:Prepared\s*by|Hazırlayan|Consultant)\s*[:=]\s*([^\n\r]+)",
+                r"(?:Performed\s*by|Ölçümü\s*Yapan)\s*[:=]\s*([^\n\r]+)",
+                r"(?:Company|Firma)\s*[:=]\s*([^\n\r]+)",
+                r"(?:Engineer|Mühendis)\s*[:=]\s*([^\n\r]+)",
+                r"(PILZ[^\n\r]*)",
+                r"([A-Z][a-z]+\s+[A-Z][a-z]+\s+(?:Engineering|Mühendislik))"
+            ],
+            
+            # Tarih pattern'leri - çok kapsamlı
+            "olcum_tarihi": [
+                # Türkçe formatlar
+                r"(?:Ölçüm\s*Tarihi|Test\s*Tarihi|Ölçüm\s*Yapıldığı\s*Tarih)\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                r"(?:Ölçüm|Test).*?(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                r"Tarih\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                
+                # İngilizce formatlar
+                r"(?:Measurement\s*Date|Test\s*Date|Date\s*of\s*(?:Test|Measurement))\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                r"(?:Measured\s*on|Tested\s*on)\s*[:=]?\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                r"(?:Date|When)\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                
+                # Çeşitli formatlar
+                r"(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})\s*(?:tarihinde|on|at|de)",
+                r"(\d{4}[./\-]\d{1,2}[./\-]\d{1,2})",  # YYYY/MM/DD formatı
+                r"(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4})",  # İngilizce ay isimleri
+                r"(\d{1,2}\s+(?:Ocak|Şubat|Mart|Nisan|Mayıs|Haziran|Temmuz|Ağustos|Eylül|Ekim|Kasım|Aralık)\s+\d{4})",  # Türkçe ay isimleri
+                
+                # Tablo içindeki tarihler
+                r"(?:Measurement|Ölçüm).*?(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                r"(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",  # Genel tarih formatı
+            ],
+            
+            "rapor_tarihi": [
+                # Türkçe formatlar
+                r"(?:Rapor\s*Tarihi|Belge\s*Tarihi|Hazırlanma\s*Tarihi)\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                r"(?:Rapor|Belge).*?(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                r"(?:Hazırlayan|Hazırlandı)\s*[:=]?\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                
+                # İngilizce formatlar  
+                r"(?:Report\s*Date|Document\s*Date|Issue\s*Date|Prepared\s*Date)\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                r"(?:Prepared\s*on|Issued\s*on|Created\s*on)\s*[:=]?\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                r"(?:Report|Document).*?(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                
+                # Çeşitli formatlar
+                r"(?:Date|Tarih)\s*[:=]\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                r"(\d{4}[./\-]\d{1,2}[./\-]\d{1,2})",  # YYYY/MM/DD formatı
+                r"(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4})",  # İngilizce ay isimleri
+                r"(\d{1,2}\s+(?:Ocak|Şubat|Mart|Nisan|Mayıs|Haziran|Temmuz|Ağustos|Eylül|Ekim|Kasım|Aralık)\s+\d{4})",  # Türkçe ay isimleri
+                
+                # Tablo başlığı veya footer'daki tarihler
+                r"(?:Created|Issued|Published)\s*[:=]?\s*(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",
+                r"(\d{1,2}[./\-]\d{1,2}[./\-]\d{4})",  # Genel tarih formatı
+            ]
         }
         
-        # Metinden değerleri çıkar
-        for key, pattern in value_patterns.items():
+        # Metinden değerleri çıkar - her pattern listesi için
+        for key, pattern_list in value_patterns.items():
             if key not in values:  # Dosya adından çıkarılmamışsa
-                matches = re.findall(pattern, text, re.IGNORECASE)
-                if matches:
-                    if isinstance(matches[0], tuple):
-                        values[key] = [m for m in matches[0] if m][0] if any(matches[0]) else "Bulunamadı"
-                    else:
-                        values[key] = matches[0].strip()
-                else:
-                    values[key] = "Bulunamadı"
+                found_value = "Bulunamadı"
+                
+                # Pattern listesinde her pattern'i dene
+                for pattern in pattern_list:
+                    matches = re.findall(pattern, text, re.IGNORECASE | re.MULTILINE)
+                    if matches:
+                        if isinstance(matches[0], tuple):
+                            # Tuple içindeki boş olmayan ilk değeri al
+                            value = [m for m in matches[0] if m.strip()]
+                            if value:
+                                found_value = value[0].strip()
+                                break
+                        else:
+                            found_value = matches[0].strip()
+                            break
+                
+                values[key] = found_value
         
         # Ölçüm verilerini analiz et
         self.analyze_measurement_data(text, values)
@@ -517,30 +767,51 @@ class GroundingContinuityReportAnalyzer:
     
     def analyze_measurement_data(self, text: str, values: Dict[str, Any]):
         """Ölçüm verilerini analiz et"""
-        # RLO değerlerini topla
-        rlo_pattern = r"(\d+)\s*(?:4x[2-9](?:[.,]\d+)?|4x4)\s*(?:[2-9](?:[.,]\d+)?|4)\s*500"
-        rlo_matches = re.findall(rlo_pattern, text)
+        # RLO değerlerini topla - daha geniş pattern
+        rlo_patterns = [
+            r"(\d+[.,]?\d*)\s*(?:mΩ|mohm|ohm|Ω)",
+            r"(\d+)\s*(?:4x[2-9](?:[.,]\d+)?|4x4)\s*(?:[2-9](?:[.,]\d+)?|4)\s*500",
+            r"(\d+)\s*(?:mΩ|mohm|ohm|Ω)"
+        ]
         
-        if rlo_matches:
-            rlo_values = [int(x) for x in rlo_matches]
-            values["rlo_min"] = f"{min(rlo_values)} mΩ"
-            values["rlo_max"] = f"{max(rlo_values)} mΩ"
+        rlo_values = []
+        for pattern in rlo_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            for match in matches:
+                try:
+                    # Virgülü noktaya çevir ve sayıya çevir
+                    value_str = str(match).replace(',', '.')
+                    rlo_values.append(float(value_str))
+                except:
+                    continue
+        
+        if rlo_values:
+            values["rlo_min"] = f"{min(rlo_values):.1f} mΩ"
+            values["rlo_max"] = f"{max(rlo_values):.1f} mΩ"
             values["rlo_ortalama"] = f"{sum(rlo_values)/len(rlo_values):.1f} mΩ"
         else:
             values["rlo_min"] = "Bulunamadı"
             values["rlo_max"] = "Bulunamadı"
             values["rlo_ortalama"] = "Bulunamadı"
         
-        # Kesit bilgilerini analiz et
-        kesit_4x4_pattern = r"4x4"
-        kesit_4x25_pattern = r"4x2[.,]5"
+        # Kesit bilgilerini analiz et - daha geniş pattern
+        kesit_patterns = [
+            r"4x4",
+            r"4x2[.,]5", 
+            r"4x6",
+            r"4x10",
+            r"Yük\s*İletken",
+            r"Load\s*Conductor",
+            r"PE\s*İletken",
+            r"PE\s*Conductor"
+        ]
         
-        kesit_4x4_count = len(re.findall(kesit_4x4_pattern, text))
-        kesit_4x25_count = len(re.findall(kesit_4x25_pattern, text))
+        total_kesit_count = 0
+        for pattern in kesit_patterns:
+            count = len(re.findall(pattern, text, re.IGNORECASE))
+            total_kesit_count += count
         
-        values["kesit_4x4_adet"] = kesit_4x4_count
-        values["kesit_4x25_adet"] = kesit_4x25_count
-        values["toplam_olcum_nokta"] = kesit_4x4_count + kesit_4x25_count
+        values["toplam_olcum_nokta"] = total_kesit_count
         
         # Uygunluk durumlarını say
         uygun_pattern = r"UYGUNUYGUN"
@@ -577,37 +848,64 @@ class GroundingContinuityReportAnalyzer:
             if sira_match:
                 sira = sira_match.group(1)
                 
-                # Yüksek RLO değeri kontrolü (>500 mΩ)
-                high_rlo_match = re.search(r'(\d{3,4})\s*(?:4x[2-9](?:[.,]\d+)?|4x4)\s*(?:[2-9](?:[.,]\d+)?|4)\s*500(\d+)\s*mΩ\s*<\s*500\s*mΩ', line)
-                if high_rlo_match:
-                    rlo_value = int(high_rlo_match.group(1))
-                    if rlo_value > 500:
-                        # Hat ve ekipman bilgisi
-                        hat_match = re.search(r'(8X\d+R?\d*)\s*(?:Hatt[ıi])?\s*(.*?)(?:\s+\d+)', line)
+                # Yüksek RLO değeri kontrolü (>500 mΩ) - daha geniş pattern
+                high_rlo_patterns = [
+                    r'(\d{3,4})\s*(?:4x[2-9](?:[.,]\d+)?|4x4)\s*(?:[2-9](?:[.,]\d+)?|4)\s*500(\d+)\s*mΩ\s*<\s*500\s*mΩ',
+                    r'(\d{3,4})\s*(?:mΩ|mohm|ohm|Ω)',
+                    r'(\d{3,4})[.,]?\d*\s*(?:mΩ|mohm|ohm|Ω)'
+                ]
+                
+                for pattern in high_rlo_patterns:
+                    high_rlo_match = re.search(pattern, line, re.IGNORECASE)
+                    if high_rlo_match:
+                        try:
+                            rlo_value = float(str(high_rlo_match.group(1)).replace(',', '.'))
+                            if rlo_value > 500:
+                                # Hat ve ekipman bilgisi - daha geniş pattern
+                                hat_patterns = [
+                                    r'(8X\d+R?\d*)\s*(?:Hatt[ıi]|Line|Zone)?\s*(.*?)(?:\s+\d+)',
+                                    r'(8X\d+R?\d*)\s*(.*?)(?:\s+\d+)',
+                                    r'(Line\s*\d+|Zone\s*\d+)\s*(.*?)(?:\s+\d+)'
+                                ]
+                                
+                                for hat_pattern in hat_patterns:
+                                    hat_match = re.search(hat_pattern, line, re.IGNORECASE)
+                                    if hat_match:
+                                        hat = hat_match.group(1)
+                                        ekipman = hat_match.group(2).strip()
+                                        non_compliant.append({
+                                            'sira': sira,
+                                            'rlo': f"{rlo_value:.1f} mΩ",
+                                            'hat': hat,
+                                            'ekipman': ekipman,
+                                            'durum': 'Yüksek Direnç'
+                                        })
+                                        break
+                                break
+                        except:
+                            continue
+                
+                # D.Y. (Değer Yok) kontrolü - daha geniş pattern
+                if '*D.Y' in line or 'D.Y' in line or 'N/A' in line or 'N/A' in line:
+                    hat_patterns = [
+                        r'(8X\d+R?\d*)\s*(?:Hatt[ıi]|Line|Zone)?\s*(.*?)(?:\s+|$)',
+                        r'(8X\d+R?\d*)\s*(.*?)(?:\s+|$)',
+                        r'(Line\s*\d+|Zone\s*\d+)\s*(.*?)(?:\s+|$)'
+                    ]
+                    
+                    for hat_pattern in hat_patterns:
+                        hat_match = re.search(hat_pattern, line, re.IGNORECASE)
                         if hat_match:
                             hat = hat_match.group(1)
                             ekipman = hat_match.group(2).strip()
                             non_compliant.append({
                                 'sira': sira,
-                                'rlo': f"{rlo_value} mΩ",
+                                'rlo': 'D.Y.',
                                 'hat': hat,
                                 'ekipman': ekipman,
-                                'durum': 'Yüksek Direnç'
+                                'durum': 'Ölçüm Yapılamadı'
                             })
-                
-                # D.Y. (Değer Yok) kontrolü
-                if '*D.Y' in line or 'D.Y' in line:
-                    hat_match = re.search(r'(8X\d+R?\d*)\s*(?:Hatt[ıi])?\s*(.*?)(?:\s+|$)', line)
-                    if hat_match:
-                        hat = hat_match.group(1)
-                        ekipman = hat_match.group(2).strip()
-                        non_compliant.append({
-                            'sira': sira,
-                            'rlo': 'D.Y.',
-                            'hat': hat,
-                            'ekipman': ekipman,
-                            'durum': 'Ölçüm Yapılamadı'
-                        })
+                            break
         
         values["uygunsuz_olcumler"] = non_compliant
     
@@ -872,6 +1170,9 @@ def main():
                 print(f"  - {file}")
         return
     
+    print("⚡ Topraklama Süreklilik Rapor Analizi Başlatılıyor...")
+    print("=" * 60)
+    
     # Analizi çalıştır
     report = analyzer.generate_detailed_report(file_path)
     
@@ -879,26 +1180,43 @@ def main():
         print(f"❌ Hata: {report['error']}")
         return
     
-    # Detaylı rapor formatında çıktı
-    print("# TOPRAKLAMA SÜREKLİLİK RAPORU ANALİZİ VE PUANLAMASI")
-    print()
-    print("## � BELGE ANALİZ SONUÇLARI")
-    print()
-    print("### Yüklenen Belge İçeriği:")
-    print(f"- **Belge Türü:** Topraklama Süreklilik Ölçüm ve Uygunluk Raporu")
-    print(f"- **Belge Dili:** {report['cikarilan_degerler'].get('language_name', 'Bilinmiyor')}")
-    if report['cikarilan_degerler'].get('detected_language', 'tr') != 'tr':
-        print(f"- **Çeviri Durumu:** ✅ {report['cikarilan_degerler']['language_name']} → Türkçe çeviri tamamlandı")
-    print(f"- **Proje No:** {report['cikarilan_degerler'].get('proje_no', 'Bulunamadı')}")
-    print(f"- **Rapor No:** {report['cikarilan_degerler'].get('rapor_numarasi', 'Bulunamadı')}")
-    print(f"- **Hat/Bölge:** {report['cikarilan_degerler'].get('makine_hatlari', 'Bulunamadı')}")
-    print(f"- **Toplam Ölçüm Noktası:** {report['cikarilan_degerler'].get('toplam_olcum_nokta', 0)} nokta")
-    print(f"- **Ölçüm Türü:** RLO (Loop Resistance) miliohm cinsinden")
-    print()
-    print("---")
-    print()
-    print("## 🔍 BÖLÜM BÖLÜM PUANLAMA (100 ÜZERİNDEN)")
-    print()
+    print("\n📊 ANALİZ SONUÇLARI")
+    print("=" * 60)
+    
+    print(f"📅 Analiz Tarihi: {report['analiz_tarihi']}")
+    print(f"🔍 Tespit Edilen Dil: {report['cikarilan_degerler'].get('language_name', 'Bilinmiyor')}")
+    print(f"📋 Toplam Puan: {report['ozet']['toplam_puan']}/100")
+    print(f"📈 Yüzde: %{report['ozet']['yuzde']:.1f}")
+    print(f"🎯 Durum: {report['ozet']['final_durum']}")
+    print(f"📄 Rapor Tipi: LVD Ölçüm Raporu")
+    
+    print(f"\n📅 TARİH GEÇERLİLİĞİ")
+    print("-" * 40)
+    print(f"Ölçüm Tarihi: {report['tarih_gecerliligi']['olcum_tarihi']}")
+    print(f"Rapor Tarihi: {report['tarih_gecerliligi']['rapor_tarihi']}")
+    print(f"Geçerlilik: {report['tarih_gecerliligi']['mesaj']}")
+    
+    print("\n📋 ÖNEMLİ ÇIKARILAN DEĞERLER")
+    print("-" * 40)
+    important_values = {
+        "proje_no": "Proje No",
+        "rapor_numarasi": "Rapor Numarası", 
+        "musteri": "Müşteri",
+        "proje_adi": "Proje Adı",
+        "tesis_adi": "Tesis/Hat",
+        "olcum_cihazi": "Ölçüm Cihazı",
+        "firma_personel": "Hazırlayan Firma",
+        "toplam_olcum_nokta": "Toplam Ölçüm Noktası",
+        "uygun_nokta_sayisi": "Uygun Nokta Sayısı",
+        "genel_sonuc": "Genel Sonuç"
+    }
+    
+    for key, display_name in important_values.items():
+        if key in report['cikarilan_degerler']:
+            print(f"{display_name}: {report['cikarilan_degerler'][key]}")
+    
+    print("\n📊 KATEGORİ PUANLARI VE DETAYLAR")
+    print("=" * 60)
     
     # Her kategori için detaylı analiz
     categories = [
@@ -913,184 +1231,76 @@ def main():
     for category, num in categories:
         if category in report['puanlama']['category_scores']:
             score_data = report['puanlama']['category_scores'][category]
-            earned = int(score_data['normalized'])
-            max_score = score_data['max_weight']
+            percentage = score_data['percentage']
+            print(f"\n🔍 {category}: {score_data['normalized']:.1f}/{score_data['max_weight']} (%{percentage:.1f})")
+            print("-" * 50)
             
-            print(f"### {num}. {category} - **{earned}/{max_score} Puan**")
-            
-            # Kategori özel değerlendirme
-            if category == "Genel Rapor Bilgileri":
-                print("❌ **EKSİKLER:**")
-                print("- Proje adı ve numarası eksik" if report['cikarilan_degerler'].get('proje_no') == 'Bulunamadı' else "")
-                print("- Ölçüm tarihi eksik" if report['tarih_gecerliligi']['olcum_tarihi'] == 'Bulunamadı' else "")
-                print("- Rapor tarihi eksik" if report['tarih_gecerliligi']['rapor_tarihi'] == 'Bulunamadı' else "")
-                print("- Ölçümü yapan firma bilgileri yok")
-                print("- Personel imza/onayı yok")
-                print("- Rapor numarası kısmen var" if 'SM' in str(report['cikarilan_degerler'].get('rapor_numarasi', '')) else "- Rapor numarası eksik")
-                print()
-                print("✅ **MEVCUT:**")
-                if report['cikarilan_degerler'].get('makine_hatlari') != 'Bulunamadı':
-                    print(f"- Hat bilgisi var ({report['cikarilan_degerler']['makine_hatlari']})")
-                if report['tarih_gecerliligi']['olcum_tarihi'] != 'Bulunamadı':
-                    print(f"- Ölçüm tarihi: {report['tarih_gecerliligi']['olcum_tarihi']}")
-                if report['tarih_gecerliligi']['rapor_tarihi'] != 'Bulunamadı':
-                    print(f"- Rapor tarihi: {report['tarih_gecerliligi']['rapor_tarihi']}")
-                
-                # Tarih kontrolü
-                print()
-                print("**TARİH KONTROLÜ (1 YIL KURALI):**")
-                print(f"- {report['tarih_gecerliligi']['mesaj']}")
-                if not report['tarih_gecerliligi']['gecerli']:
-                    print("- ❌ RAPOR GEÇERSİZ - Yeni ölçüm gerekli")
-                
-            elif category == "Ölçüm Metodu ve Standart Referansları":
-                en60204_found = any('EN 60204' in str(result.content) for result in report['kategori_analizleri'][category].values() if result.found)
-                
-                print("✅ **MEVCUT:**") if en60204_found else print("❌ **EKSİKLER:**")
-                if en60204_found:
-                    print("- EN 60204 standart referansı var")
-                    print("- Tablo 10 referansı belirtilmiş")
-                print()
-                print("❌ **EKSİKLER:**")
-                print("- Ölçüm cihazı marka/model bilgisi yok")
-                print("- Kalibrasyon bilgileri yok") 
-                print("- Ölçüm yöntemi detayları eksik")
-                
-            elif category == "Ölçüm Sonuç Tablosu":
-                total_points = report['cikarilan_degerler'].get('toplam_olcum_nokta', 0)
-                if earned >= 20:  # Yüksek puan aldıysa
-                    print("✅ **TAM PUAN - EKSİKSİZ:**")
-                    print(f"- {total_points} ölçüm noktası eksiksiz listelenmiş")
-                    print("- Sıra numaraları düzenli")
-                    print("- Makine/Hat bilgileri detaylı")
-                    print("- RLO değerleri (mΩ) tam")
-                    print("- İletken kesitleri belirtilmiş (4x4, 4x2.5)")
-                    print("- PE kesitleri verilmiş")
-                    print("- Referans değerler (500 mΩ) standart")
-                    print("- Uygunluk durumu net (*D.Y notları dahil)")
-                else:
-                    print("❌ **EKSİKLER:**")
-                    print("- Ölçüm tablosu eksik veya yetersiz")
-                
-            elif category == "Uygunluk Değerlendirmesi":
-                print("✅ **MEVCUT:**") if earned > 10 else print("❌ **EKSİKLER:**")
-                if earned > 10:
-                    print("- Her ölçüm için uygunluk değerlendirmesi yapılmış")
-                    print("- Limit dışı değerler belirlenmiş")
-                print()
-                print("❌ **EKSİKLER:**")
-                print("- Genel toplu değerlendirme yok")
-                print("- Risk analizi eksik") 
-                print("- Düzeltici faaliyet önerileri yok")
-                
-                # Uygunsuz ölçümler listesi
-                if 'uygunsuz_olcumler' in report['cikarilan_degerler'] and report['cikarilan_degerler']['uygunsuz_olcumler']:
-                    print()
-                    print("**TESPİT EDİLEN UYGUNSUZ ÖLÇÜMLER:**")
-                    for measurement in report['cikarilan_degerler']['uygunsuz_olcumler']:
-                        if measurement['durum'] == 'Yüksek Direnç':
-                            print(f"- Sıra {measurement['sira']}: {measurement['rlo']} > 500 mΩ ({measurement['hat']} {measurement['ekipman']})")
-                        else:
-                            print(f"- Sıra {measurement['sira']}: *D.Y ({measurement['hat']} {measurement['ekipman']})")
-                
-            elif category == "Görsel ve Teknik Dökümantasyon":
-                if earned == 0:
-                    print("❌ **TAMAMEN EKSİK:**")
-                    print("- Fotoğraf yok")
-                    print("- Kroki/şema yok")
-                    print("- Ölçüm cihazı görseli yok")
-                else:
-                    print("✅ **MEVCUT:**")
-                    print("- Bazı görsel öğeler mevcut")
-                
-            elif category == "Sonuç ve Öneriler":
-                if earned < 5:
-                    print("❌ **EKSİKLER:**")
-                    print("- Genel sonuç değerlendirmesi yok")
-                    print("- İyileştirme önerileri yok")
-                    print("- Periyodik ölçüm önerisi yok")
-                    print()
-                    print("✅ **MEVCUT:**")
-                    print("- Temel uygunluk durumu belirtilmiş")
-                else:
-                    print("✅ **MEVCUT:**")
-                    print("- Sonuç ve öneriler yeterli")
-            
-            print()
+            # Bu kategorinin analiz sonuçlarını göster
+            if category in report['kategori_analizleri']:
+                category_analysis = report['kategori_analizleri'][category]
+                for criterion_name, criterion_result in category_analysis.items():
+                    criterion_display = criterion_name.replace('_', ' ').title()
+                    if hasattr(criterion_result, 'found') and criterion_result.found:
+                        print(f"  ✅ {criterion_display}: {criterion_result.score}/{criterion_result.max_score} puan")
+                    else:
+                        print(f"  ❌ {criterion_display}: 0/{criterion_result.max_score} puan - BULUNAMADI")
     
-    # Puan tablosu
-    print("---")
-    print()
-    print("## 📊 TOPLAM PUAN HESABI")
-    print()
-    print("| Kategori | Alınan Puan | Maksimum Puan |")
-    print("|----------|-------------|----------------|")
+    print("\n" + "=" * 60)
     
-    for category, num in categories:
-        if category in report['puanlama']['category_scores']:
-            score_data = report['puanlama']['category_scores'][category]
-            earned = int(score_data['normalized'])
-            max_score = score_data['max_weight']
-            print(f"| {category} | {earned} | {max_score} |")
+    print("\n💡 ÖNERİLER VE DEĞERLENDİRME")
+    print("-" * 40)
+    for recommendation in report['oneriler']:
+        print(recommendation)
     
-    total_score = int(report['ozet']['toplam_puan'])
-    print(f"| **TOPLAM** | **{total_score}** | **100** |")
-    print()
-    print("---")
-    print()
+    print("\n📋 GENEL DEĞERLENDİRME")
+    print("=" * 60)
     
-    # Sonuç
-    status = "PASS" if total_score >= 70 else "FAIL"
-    print(f"## ⚠️ SONUÇ: **{status}** ({total_score}/100)")
-    print()
-    
-    if status == "FAIL":
-        print("### � GEÇEMEMENİN NEDENLERİ:")
-        print(f"1. **Geçme sınırı:** 70 puan, **Alınan:** {total_score} puan")
-        print("2. Kritik eksiklikler:")
+    if report['ozet']['final_durum'] == "PASSED":
+        print("✅ SONUÇ: GEÇERLİ")
+        print(f"🌟 Toplam Başarı: %{report['ozet']['yuzde']:.1f}")
+        print("📝 Değerlendirme: Topraklama Süreklilik raporu genel olarak yeterli kriterleri sağlamaktadır.")
+    else:
+        print("❌ SONUÇ: GEÇERSİZ")
+        print(f"⚠️ Toplam Başarı: %{report['ozet']['yuzde']:.1f}")
+        print("📝 Değerlendirme: Topraklama Süreklilik raporu minimum gereklilikleri sağlamamaktadır.")
         
-        for category in categories:
-            cat_name = category[0]
-            if cat_name in report['puanlama']['category_scores']:
-                score_data = report['puanlama']['category_scores'][cat_name]
-                if score_data['percentage'] < 50:
-                    print(f"   - {cat_name} yetersiz")
+        # Başarısızlık nedeni varsa yazdır
+        if report['ozet']['fail_nedeni']:
+            print(f"🚨 Başarısızlık Nedeni: {report['ozet']['fail_nedeni']}")
         
-        uygunsuz_count = len(report['cikarilan_degerler'].get('uygunsuz_olcumler', []))
-        if uygunsuz_count > 0:
-            print(f"   - {uygunsuz_count} nokta uygunsuzluk var ve çözüm önerisi yok")
-    
-    print()
-    
-    # Olumlu yönler
-    total_measurements = report['cikarilan_degerler'].get('toplam_olcum_nokta', 0)
-    compliant_measurements = report['cikarilan_degerler'].get('uygun_nokta_sayisi', 0)
-    
-    print("### ✅ OLUMLU YÖNLER:")
-    if total_measurements > 200:
-        print("- Ölçüm tablosu eksiksiz ve profesyonel")
-    print("- Standart referansları doğru")
-    if total_measurements > 0 and compliant_measurements > 0:
-        print(f"- {total_measurements} ölçümden {compliant_measurements}'ü uygun")
-    print("- Veri kalitesi yüksek")
-    print()
-    
-    # İyileştirme önerileri
-    print("### 🔧 İYİLEŞTİRME ÖNERİLERİ:")
-    print("1. Rapor üst bilgilerini tamamlayın")
-    
-    uygunsuz_olcumler = report['cikarilan_degerler'].get('uygunsuz_olcumler', [])
-    if uygunsuz_olcumler:
-        print("2. Uygunsuz noktalar için düzeltici plan hazırlayın")
-        kalemtras_problems = [m for m in uygunsuz_olcumler if 'Kalemtraş' in m.get('ekipman', '')]
-        if kalemtras_problems:
-            print("5. Özellikle 'Kalemtraş' ekipmanlarındaki yüksek direnç sorununu araştırın")
-    
-    print("3. Görsel dökümantasyon ekleyin")
-    print("4. Genel değerlendirme ve öneriler bölümü yazın")
-    print()
-    
-    print(f"**Not:** Bu rapor teknik veri açısından değerli ancak standart rapor formatına uygun değildir.")
+        print("\n⚠️ EKSİK GEREKLİLİKLER:")
+        for category, results in report['kategori_analizleri'].items():
+            missing_items = []
+            for criterion, result in results.items():
+                if not result.found:
+                    missing_items.append(criterion)
+            
+            if missing_items:
+                print(f"\n🔍 {category}:")
+                for item in missing_items[:3]:  # İlk 3 eksik item'ı göster
+                    readable_name = item.replace('_', ' ').title()
+                    print(f"   ❌ {readable_name}")
+        
+        print("\n📌 YAPILMASI GEREKENLER:")
+        print("1. Eksik belgelendirmeleri tamamlayın")
+        print("2. Ölçüm cihazı ve kalibrasyon bilgilerini ekleyin")
+        print("3. Ölçüm sonuç tablolarını detaylandırın")
+        print("4. Uygunluk değerlendirmelerini güçlendirin")
+        print("5. Görsel dokümantasyonu artırın")
+        print("6. Standart referanslarını ekleyin")
+        
+        # Uygunsuz ölçümler varsa ekstra bilgi
+        uygunsuz_olcumler = report['cikarilan_degerler'].get('uygunsuz_olcumler', [])
+        if uygunsuz_olcumler:
+            print("\n🚨 UYGUNSUZ ÖLÇÜMLER:")
+            for measurement in uygunsuz_olcumler[:5]:  # İlk 5 uygunsuz ölçümü göster
+                if measurement['durum'] == 'Yüksek Direnç':
+                    print(f"   ⚠️ Sıra {measurement['sira']}: {measurement['rlo']} > 500 mΩ")
+                else:
+                    print(f"   ⚠️ Sıra {measurement['sira']}: Ölçüm yapılamadı (*D.Y.)")
+            
+            if len(uygunsuz_olcumler) > 5:
+                print(f"   ... ve {len(uygunsuz_olcumler) - 5} uygunsuz ölçüm daha")
 
 if __name__ == "__main__":
     main()
